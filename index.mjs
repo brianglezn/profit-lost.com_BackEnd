@@ -1,4 +1,3 @@
-import { DB_NAME, client } from "./src/database.mjs";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -6,7 +5,8 @@ import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 
-import 'dotenv/config'; // para las variables de entorno en local
+import { DB_NAME, client } from "./src/database.mjs";
+import "dotenv/config"; // para las variables de entorno en local
 
 const app = express();
 const PORT = process.env.PORT;
