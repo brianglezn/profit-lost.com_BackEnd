@@ -1,0 +1,45 @@
+# Dependencias
+/node_modules
+
+# Archivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Directorios de caché
+.cache
+.next
+.nuxt
+dist
+build
+
+# Varios archivos y directorios
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Directorios de salida de compilación
+/out
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Directorio de cobertura de pruebas
+/coverage
+
+# Archivos de perfil de rendimiento
+*.pid
+*.pid.lock
+*.seed
+*.pid.lock
