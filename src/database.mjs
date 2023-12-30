@@ -5,9 +5,9 @@ const DB_PASS = process.env.DB_PASS;
 const DB_NAME = process.env.DB_NAME;
 const DB_URI = `mongodb+srv://${DB_USER}:${DB_PASS}@profit-lost.dojlby3.mongodb.net/?retryWrites=true&w=majority`;
 
-// console.log(process.env.DB_USER);
-// console.log(process.env.DB_PASS);
-// console.log(process.env.DB_NAME);
+console.log(process.env.DB_USER);
+console.log(process.env.DB_PASS);
+console.log(process.env.DB_NAME);
 
 // Create a MongoClient instance
 const client = new MongoClient(DB_URI, {
