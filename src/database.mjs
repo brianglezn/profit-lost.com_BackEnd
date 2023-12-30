@@ -1,10 +1,8 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-const DB_USER = "PLAdmin";
-const DB_PASS = "rFP7L9cmIGORk23z";
-const DB_NAME = "ProfitAndLostDB";
-
-// MongoDB connection URI
+const DB_USER = process.env.DB_USER;
+const DB_PASS = process.env.DB_PASS;
+const DB_NAME = process.env.DB_NAME;
 const DB_URI = `mongodb+srv://${DB_USER}:${DB_PASS}@profit-lost.dojlby3.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient instance

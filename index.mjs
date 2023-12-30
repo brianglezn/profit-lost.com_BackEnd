@@ -6,12 +6,14 @@ import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 
+import 'dotenv/config'; // para las variables de entorno en local
+
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT;
 app.use(cors());
 app.use(bodyParser.json());
 
-const JWT_KEY = "rFP7oijih7854GORk23z";
+const JWT_KEY = process.env.JWT_KEY;
 
 app.post("/register", async (req, res) => {
   try {
@@ -67,8 +69,8 @@ app.post("/login", async (req, res) => {
 });
 
 // Start Express's server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // Try a db connection
