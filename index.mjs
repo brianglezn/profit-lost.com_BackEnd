@@ -1,4 +1,4 @@
-import { DB_NAME, client } from "./database.mjs";
+import { DB_NAME, client } from "./src/database.mjs";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -17,24 +17,24 @@ app.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Validación básica
+    // Basic validation
     if (!username || !email || !password) {
       return res.status(400).send("Username, email, and password are required");
     }
 
-    // Hash de la contraseña
+    // Password hashing
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Almacenar usuario en MongoDB
+    // Store user in MongoDB
     const usersCollection = client.db(DB_NAME).collection("users");
     const result = await usersCollection.insertOne({
       _id: new ObjectId(),
       username,
       email,
       password: hashedPassword,
-      categorias: [],
-      cuentas: [],
-      movimientos: [],
+      categories: [],
+      accounts: [],
+      movements: [],
     });
 
     res.status(201).send(`User created with id ${result.insertedId}`);
@@ -51,12 +51,12 @@ app.post("/login", async (req, res) => {
     const user = await usersCollection.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      // Generar un token JWT
+      // Generate a JWT token
       const token = jwt.sign({ userId: user._id }, JWT_KEY, {
         expiresIn: "1h",
       });
 
-      res.json({ token }); // Enviar el token al cliente
+      res.json({ token }); // Send the token to the client
     } else {
       res.status(401).send("Invalid email or password");
     }
@@ -71,14 +71,14 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-// Try a db conecction
+// Try a db connection
 async function testDBConnection() {
   try {
     const usersCollection = client.db(DB_NAME).collection("users");
     const documents = await usersCollection.find({}).toArray();
-    console.log("Documentos en la colección Users:", documents);
+    console.log("Documents in the Users collection:", documents);
   } catch (e) {
-    console.error("Error al obtener documentos:", e);
+    console.error("Error retrieving documents:", e);
   }
 }
 testDBConnection();
