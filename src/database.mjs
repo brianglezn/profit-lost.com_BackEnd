@@ -5,10 +5,6 @@ const DB_PASS = process.env.DB_PASS;
 const DB_NAME = process.env.DB_NAME;
 const DB_URI = `mongodb+srv://${DB_USER}:${DB_PASS}@profit-lost.dojlby3.mongodb.net/?retryWrites=true&w=majority&ssl=true`;
 
-console.log(process.env.DB_USER);
-console.log(process.env.DB_PASS);
-console.log(process.env.DB_NAME);
-
 // Create a MongoClient instance
 const client = new MongoClient(DB_URI, {
   serverApi: {
@@ -21,11 +17,11 @@ const client = new MongoClient(DB_URI, {
 // Function to initiate connection with the database
 async function run() {
   try {
-    // Connect to the server (optional starting in version 4.7)
+    // Connect to the server
     await client.connect();
     console.log("Successfully connected to MongoDB");
 
-    // Send a ping to confirm the connection (optional)
+    // Send a ping to confirm the connection
     const pingResult = await client.db("admin").command({ ping: 1 });
     console.log("Ping to MongoDB:", pingResult);
   } catch (error) {
