@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 
 import { DB_NAME, client } from "./src/database.mjs";
-import "dotenv/config"; // para las variables de entorno en local
+import "dotenv/config";
 
 const app = express();
 const PORT = process.env.PORT;
