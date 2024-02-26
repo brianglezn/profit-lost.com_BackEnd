@@ -16,15 +16,3 @@ app.use(authRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Try a db connection
-async function testDBConnection() {
-  try {
-    const usersCollection = client.db(DB_NAME).collection("users");
-    const documents = await usersCollection.find({}).toArray();
-    console.log("Documents in the Users collection:", documents);
-  } catch (e) {
-    console.error("Error retrieving documents:", e);
-  }
-}
-testDBConnection();
