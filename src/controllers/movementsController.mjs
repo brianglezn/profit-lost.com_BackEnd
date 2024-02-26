@@ -1,4 +1,3 @@
-// movementsController.mjs
 import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
