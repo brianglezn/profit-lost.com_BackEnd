@@ -7,31 +7,35 @@ export async function getMovementsByYear(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const regex = new RegExp(`^${year}-`);
-        const movements = await movementsCollection.find({
-            user_id: userId,
-            date: { $regex: regex }
-        }).toArray();
+        const movements = await movementsCollection.find({ user_id: userId, date: { $regex: `^${year}-` } }).toArray();
 
+        // Inicializar monthlyTotals para cada mes del año solicitado
         let monthlyTotals = {};
+        for (let i = 1; i <= 12; i++) {
+            const monthKey = `${year}-${i.toString().padStart(2, '0')}`;
+            monthlyTotals[monthKey] = { Income: 0, Expenses: 0 };
+        }
 
+        // Procesar movimientos para calcular totales de ingresos y gastos por mes
         movements.forEach(movement => {
-            let month = movement.date.split('-')[1];
-            if (!monthlyTotals[month]) {
-                monthlyTotals[month] = { Income: 0, Expenses: 0 };
-            }
-            if (movement.amount > 0) {
-                monthlyTotals[month].Income += movement.amount;
+            const monthKey = movement.date;
+            const amount = movement.amount;
+            if (amount > 0) {
+                monthlyTotals[monthKey].Income += amount;
             } else {
-                monthlyTotals[month].Expenses += Math.abs(movement.amount);
+                monthlyTotals[monthKey].Expenses += Math.abs(amount);
             }
         });
 
-        const response = Object.keys(monthlyTotals).map(month => ({
-            month,
-            Income: monthlyTotals[month].Income,
-            Expenses: monthlyTotals[month].Expenses
-        }));
+        // Preparar la respuesta
+        const response = Object.keys(monthlyTotals).map(key => {
+            const month = key.split('-')[1];
+            return {
+                month: monthNames[parseInt(month, 10) - 1], // Convertir "01", "02", etc. a "Jan", "Feb", etc.
+                Income: monthlyTotals[key].Income,
+                Expenses: monthlyTotals[key].Expenses,
+            };
+        });
 
         res.json(response);
     } catch (error) {
