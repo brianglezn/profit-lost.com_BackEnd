@@ -7,42 +7,38 @@ export async function getMovementsByYear(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-
+        
         // Encuentra todos los movimientos para el usuario y año dados
         const movements = await movementsCollection.find({
             user_id: userId,
             date: { $regex: `^${year}-` },
         }).toArray();
 
-        // Inicializa el acumulador para asegurar que todos los meses empiecen con Income y Expenses en 0
+        // Inicializa el acumulador con todos los meses en 0 para Income y Expenses
         const accumulator = {};
-        for (let i = 1; i <= 12; i++) {
-            const monthKey = `${year}-${i.toString().padStart(2, '0')}`;
-            accumulator[monthKey] = { Income: 0, Expenses: 0 };
-        }
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        monthNames.forEach(month => {
+            accumulator[month] = { Income: 0, Expenses: 0 };
+        });
 
-        // Procesa cada movimiento
         movements.forEach(movement => {
-            const monthKey = movement.date;
+            const monthIndex = parseInt(movement.date.split('-')[1], 10) - 1;
+            const monthName = monthNames[monthIndex];
             const amountValue = parseFloat(movement.amount.$numberDouble);
 
             if (amountValue > 0) {
-                accumulator[monthKey].Income += amountValue;
+                accumulator[monthName].Income += amountValue;
             } else {
-                accumulator[monthKey].Expenses += Math.abs(amountValue);
+                accumulator[monthName].Expenses += Math.abs(amountValue);
             }
         });
 
-        // Convierte el acumulador a un array ordenado por mes
-        const chartData = Object.entries(accumulator).map(([date, values]) => {
-            const monthIndex = parseInt(date.split('-')[1], 10) - 1;
-            const monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][monthIndex];
-            return {
-                month: monthName,
-                Income: values.Income,
-                Expenses: values.Expenses,
-            };
-        });
+        // Transforma el acumulador en un array para la respuesta
+        const chartData = monthNames.map(month => ({
+            month: month,
+            Income: accumulator[month].Income,
+            Expenses: accumulator[month].Expenses
+        }));
 
         res.json(chartData);
     } catch (error) {
@@ -50,3 +46,4 @@ export async function getMovementsByYear(req, res) {
         res.status(500).send("Error retrieving movements data");
     }
 }
+
