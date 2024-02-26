@@ -7,36 +7,38 @@ export async function getMovementsByYear(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-
+        
         const movements = await movementsCollection.find({
             user_id: userId,
-            date: { $regex: `^${year}-` }
+            date: { $regex: `^${year}-` },
         }).toArray();
 
-        const initialAcc = {};
-        ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].forEach(month => {
-            initialAcc[month] = { Income: 0, Expenses: 0 };
+        const accumulator = {};
+        for (let i = 1; i <= 12; i++) {
+            const month = i.toString().padStart(2, '0');
+            accumulator[`${year}-${month}`] = { Income: 0, Expenses: 0 };
+        }
+
+        movements.forEach(movement => {
+            const { date, amount } = movement;
+            const amountValue = parseFloat(amount.$numberDouble);
+            if (amountValue > 0) {
+                accumulator[date].Income += amountValue;
+            } else {
+                accumulator[date].Expenses += Math.abs(amountValue);
+            }
         });
 
-        const processedData = movements.reduce((acc, movement) => {
-            const monthIndex = parseInt(movement.date.split('-')[1], 10) - 1;
+        // Convertir el acumulador a la estructura de respuesta deseada
+        const chartData = Object.keys(accumulator).map(date => {
+            const monthIndex = parseInt(date.split('-')[1], 10) - 1;
             const monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][monthIndex];
-            const amount = parseFloat(movement.amount.$numberDouble);
-
-            if (amount > 0) {
-                acc[monthName].Income += amount;
-            } else {
-                acc[monthName].Expenses += Math.abs(amount);
-            }
-
-            return acc;
-        }, initialAcc);
-
-        const chartData = Object.entries(processedData).map(([month, { Income, Expenses }]) => ({
-            month,
-            Income: parseFloat(Income.toFixed(2)),
-            Expenses: parseFloat(Expenses.toFixed(2)),
-        }));
+            return {
+                month: monthName,
+                Income: accumulator[date].Income,
+                Expenses: accumulator[date].Expenses,
+            };
+        });
 
         res.json(chartData);
     } catch (error) {
