@@ -7,43 +7,35 @@ export async function getMovementsByYear(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        
-        // Encuentra todos los movimientos para el usuario y año dados
+        const regex = new RegExp(`^${year}-`);
         const movements = await movementsCollection.find({
             user_id: userId,
-            date: { $regex: `^${year}-` },
+            date: { $regex: regex }
         }).toArray();
 
-        // Inicializa el acumulador con todos los meses en 0 para Income y Expenses
-        const accumulator = {};
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        monthNames.forEach(month => {
-            accumulator[month] = { Income: 0, Expenses: 0 };
-        });
+        let monthlyTotals = {};
 
         movements.forEach(movement => {
-            const monthIndex = parseInt(movement.date.split('-')[1], 10) - 1;
-            const monthName = monthNames[monthIndex];
-            const amountValue = parseFloat(movement.amount.$numberDouble);
-
-            if (amountValue > 0) {
-                accumulator[monthName].Income += amountValue;
+            let month = movement.date.split('-')[1];
+            if (!monthlyTotals[month]) {
+                monthlyTotals[month] = { Income: 0, Expenses: 0 };
+            }
+            if (movement.amount > 0) {
+                monthlyTotals[month].Income += movement.amount;
             } else {
-                accumulator[monthName].Expenses += Math.abs(amountValue);
+                monthlyTotals[month].Expenses += Math.abs(movement.amount);
             }
         });
 
-        // Transforma el acumulador en un array para la respuesta
-        const chartData = monthNames.map(month => ({
-            month: month,
-            Income: accumulator[month].Income,
-            Expenses: accumulator[month].Expenses
+        const response = Object.keys(monthlyTotals).map(month => ({
+            month,
+            Income: monthlyTotals[month].Income,
+            Expenses: monthlyTotals[month].Expenses
         }));
 
-        res.json(chartData);
+        res.json(response);
     } catch (error) {
         console.error("Failed to retrieve movements:", error);
         res.status(500).send("Error retrieving movements data");
     }
 }
-
