@@ -6,7 +6,7 @@ import { PORT } from "./src/config/constants.mjs";
 import "dotenv/config";
 
 const app = express();
-app.use(cors({ origin: 'http://profit-lost-frontend.onrender.com/' }));
+app.use(cors());
 app.use(express.json());
 
 app.use(authRoutes);
