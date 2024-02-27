@@ -46,3 +46,29 @@ export async function getMovementsByYear(req, res) {
         res.status(500).send("Error retrieving movements data");
     }
 }
+
+export async function getAllMovements(req, res) {
+    const userId = req.user.userId;
+
+    try {
+        const movementsCollection = client.db(DB_NAME).collection("movements");
+        const movements = await movementsCollection.find({ user_id: userId }).toArray();
+
+        if (movements.length === 0) {
+            return res.status(404).json({ message: "No movements found" });
+        }
+
+        const response = movements.map(movement => ({
+            date: movement.date,
+            type: movement.amount > 0 ? "Income" : "Expenses",
+            amount: Math.abs(movement.amount),
+            category: movement.category,
+            description: movement.description,
+        }));
+
+        res.json(response);
+    } catch (error) {
+        console.error("Failed to retrieve all movements:", error);
+        res.status(500).send("Error retrieving all movements data");
+    }
+}
