@@ -12,9 +12,9 @@ export async function getMovementsByYear(req, res) {
         // Asegúrate de que tu consulta a la base de datos esté correcta para filtrar por año.
         const movements = await movementsCollection.find({ user_id: userId, date: { $regex: `^${year}-` } }).toArray();
 
-        if (movements.length === 0) {
-            return res.json([]);
-        }
+        // if (movements.length === 0) {
+        //     return res.json([]);
+        // }
 
         let monthlyTotals = {};
         for (let i = 1; i <= 12; i++) {
