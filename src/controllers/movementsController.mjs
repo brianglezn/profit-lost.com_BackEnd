@@ -35,8 +35,8 @@ export async function getMovementsByYear(req, res) {
             const monthIndex = parseInt(key.split('-')[1], 10) - 1;
             return {
                 month: monthNames[monthIndex],
-                Income: monthlyTotals[key].Income,
-                Expenses: monthlyTotals[key].Expenses,
+                Income: Number(monthlyTotals[key].Income.toFixed(2)),
+                Expenses: Number(monthlyTotals[key].Expenses.toFixed(2)),
             };
         });
 
