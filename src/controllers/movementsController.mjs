@@ -11,6 +11,10 @@ export async function getMovementsByYear(req, res) {
         const movementsCollection = client.db(DB_NAME).collection("movements");
         const movements = await movementsCollection.find({ user_id: userId, date: { $regex: `^${year}-` } }).toArray();
 
+        if (movements.length === 0) {
+            return res.json([]);
+        }
+
         let monthlyTotals = {};
         for (let i = 1; i <= 12; i++) {
             const monthKey = `${year}-${i.toString().padStart(2, '0')}`;
