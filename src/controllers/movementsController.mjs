@@ -9,6 +9,7 @@ export async function getMovementsByYear(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
+        // Asegúrate de que tu consulta a la base de datos esté correcta para filtrar por año.
         const movements = await movementsCollection.find({ user_id: userId, date: { $regex: `^${year}-` } }).toArray();
 
         if (movements.length === 0) {
@@ -22,7 +23,9 @@ export async function getMovementsByYear(req, res) {
         }
 
         movements.forEach(movement => {
-            const monthKey = movement.date;
+            // Extracción del mes de la fecha del movimiento para crear la clave correcta.
+            const dateParts = movement.date.split('-');
+            const monthKey = `${dateParts[0]}-${dateParts[1]}`; // Año-Mes como clave.
             const amount = movement.amount;
             if (amount > 0) {
                 monthlyTotals[monthKey].Income += amount;
@@ -46,3 +49,4 @@ export async function getMovementsByYear(req, res) {
         res.status(500).send("Error retrieving movements data");
     }
 }
+
