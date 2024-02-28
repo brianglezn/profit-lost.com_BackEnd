@@ -8,24 +8,24 @@ export async function getAllMovements(req, res) {
         const movementsCollection = client.db(DB_NAME).collection("movements");
         const movements = await movementsCollection.aggregate([
             { $match: { "user_id": userId }},
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "category",
-                    foreignField: "_id",
-                    as: "categoryInfo"
-                }
-            },
-            { $unwind: "$categoryInfo" },
-            {
-                $project: {
-                    _id: 0,
-                    date: 1,
-                    description: 1,
-                    amount: 1,
-                    category: "$categoryInfo.name",
-                }
-            }
+            // {
+            //     $lookup: {
+            //         from: "categories",
+            //         localField: "category",
+            //         foreignField: "_id",
+            //         as: "categoryInfo"
+            //     }
+            // },
+            // { $unwind: "$categoryInfo" },
+            // {
+            //     $project: {
+            //         _id: 0,
+            //         date: 1,
+            //         description: 1,
+            //         amount: 1,
+            //         category: "$categoryInfo.name",
+            //     }
+            // }
         ]).toArray();
 
         res.json(movements);
@@ -45,24 +45,24 @@ export async function getMovementsByYear(req, res) {
         const movementsCollection = client.db(DB_NAME).collection("movements");
         const movements = await movementsCollection.aggregate([
             { $match: { "user_id": userId, date: { $regex: `^${year}` } }},
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "category",
-                    foreignField: "_id",
-                    as: "categoryInfo"
-                }
-            },
-            { $unwind: "$categoryInfo" },
-            {
-                $project: {
-                    _id: 0,
-                    date: 1,
-                    description: 1,
-                    amount: 1,
-                    category: "$categoryInfo.name",
-                }
-            }
+            // {
+            //     $lookup: {
+            //         from: "categories",
+            //         localField: "category",
+            //         foreignField: "_id",
+            //         as: "categoryInfo"
+            //     }
+            // },
+            // { $unwind: "$categoryInfo" },
+            // {
+            //     $project: {
+            //         _id: 0,
+            //         date: 1,
+            //         description: 1,
+            //         amount: 1,
+            //         category: "$categoryInfo.name",
+            //     }
+            // }
         ]).toArray();
 
         res.json(movements);
