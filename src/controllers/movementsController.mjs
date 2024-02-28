@@ -7,27 +7,23 @@ export async function getAllMovements(req, res) {
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
         const movements = await movementsCollection.aggregate([
-            { $match: { user_id: userId }},
+            { $match: { "user_id": userId }},
             {
                 $lookup: {
                     from: "categories",
                     localField: "category",
                     foreignField: "_id",
-                    as: "categoryData"
+                    as: "categoryInfo"
                 }
             },
-            {
-                $unwind: {
-                    path: "$categoryData",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
+            { $unwind: "$categoryInfo" },
             {
                 $project: {
+                    _id: 0,
                     date: 1,
-                    category: "$categoryData.name",
                     description: 1,
                     amount: 1,
+                    category: "$categoryInfo.name",
                 }
             }
         ]).toArray();
@@ -40,25 +36,36 @@ export async function getAllMovements(req, res) {
 }
 
 
+
 export async function getMovementsByYear(req, res) {
     const { year } = req.params;
     const userId = req.user.userId;
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const movements = await movementsCollection.find({
-            user_id: userId,
-            date: { $regex: `^${year}` }
-        }).toArray();
+        const movements = await movementsCollection.aggregate([
+            { $match: { "user_id": userId, date: { $regex: `^${year}` } }},
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryInfo"
+                }
+            },
+            { $unwind: "$categoryInfo" },
+            {
+                $project: {
+                    _id: 0,
+                    date: 1,
+                    description: 1,
+                    amount: 1,
+                    category: "$categoryInfo.name",
+                }
+            }
+        ]).toArray();
 
-        const formattedMovements = movements.map(movement => ({
-            date: movement.date,
-            category: movement.category,
-            description: movement.description,
-            amount: movement.amount,
-        }));
-
-        res.json(formattedMovements);
+        res.json(movements);
     } catch (error) {
         console.error("Failed to retrieve movements:", error);
         res.status(500).send("Error retrieving movements data");
