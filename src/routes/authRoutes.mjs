@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { authenticateToken } from '../middlewares/authMiddleware.mjs';
 import { register, login } from "../controllers/authController.mjs";
-import { getMovementsByYear, getAllMovements } from '../controllers/movementsController.mjs';
+import { getAllMovements, getMovementsByYear } from '../controllers/movementsController.mjs';
 
 const router = Router();
 
