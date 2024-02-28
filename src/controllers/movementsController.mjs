@@ -52,53 +52,18 @@ export async function getAllMovements(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const aggregateQuery = [
-            { $match: { user_id: userId } },
-            {
-                $addFields: {
-                    year: { $substr: ["$date", 0, 4] },
-                    month: { $substr: ["$date", 5, 2] }
-                }
-            },
-            {
-                $group: {
-                    _id: { year: "$year", month: "$month" },
-                    Income: {
-                        $sum: {
-                            $cond: [{ $gt: ["$amount", 0] }, "$amount", 0]
-                        }
-                    },
-                    Expenses: {
-                        $sum: {
-                            $cond: [{ $lt: ["$amount", 0] }, "$amount", 0]
-                        }
-                    }
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    year: "$_id.year",
-                    month: "$_id.month",
-                    Income: 1,
-                    Expenses: 1
-                }
-            },
-            { $sort: { "year": 1, "month": 1 } }
-        ];
-
-        const movements = await movementsCollection.aggregate(aggregateQuery).toArray();
+        const movements = await movementsCollection.find({ user_id: userId }).toArray();
 
         const formattedMovements = movements.map(movement => ({
-            year: movement.year,
-            month: monthNames[parseInt(movement.month, 10) - 1],
-            Income: movement.Income,
-            Expenses: movement.Expenses
+            date: movement.date.slice(0, 7),
+            category: movement.category,
+            description: movement.description,
+            amount: movement.amount,
         }));
 
         res.json(formattedMovements);
     } catch (error) {
-        console.error("Failed to retrieve all movements:", error);
-        res.status(500).send("Error retrieving all movements data");
+        console.error("Failed to retrieve movements:", error);
+        res.status(500).send("Error retrieving movements data");
     }
 }
