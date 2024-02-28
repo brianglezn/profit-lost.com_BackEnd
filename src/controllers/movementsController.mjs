@@ -6,13 +6,14 @@ export async function getAllMovements(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const movements = await movementsCollection.find({ user_id: userId }).toArray();
+        const movements = await movementsCollection.find({ "user_id": userId }).toArray();
 
         const formattedMovements = movements.map(movement => ({
-            date: movement.date,
-            category: movement.category,
-            description: movement.description,
-            amount: movement.amount,
+            "user_id": movement.user_id,
+            "date": movement.date,
+            "category": movement.category,
+            "description": movement.description,
+            "amount": movement.amount
         }));
 
         res.json(formattedMovements);
@@ -22,27 +23,8 @@ export async function getAllMovements(req, res) {
     }
 }
 
+
 export async function getMovementsByYear(req, res) {
-    const { year } = req.params;
-    const userId = req.user.userId;
 
-    try {
-        const movementsCollection = client.db(DB_NAME).collection("movements");
-        const movements = await movementsCollection.find({
-            user_id: userId,
-            date: { $regex: `^${year}` }
-        }).toArray();
-
-        const formattedMovements = movements.map(movement => ({
-            date: movement.date,
-            category: movement.category,
-            description: movement.description,
-            amount: movement.amount,
-        }));
-        res.json(formattedMovements);
-    } catch (error) {
-        console.error("Failed to retrieve movements:", error);
-        res.status(500).send("Error retrieving movements data");
-    }
 }
 
