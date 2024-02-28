@@ -8,17 +8,32 @@ export async function getAllMovements(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const movements = await movementsCollection.find({ "user_id": new ObjectId(userId) }).toArray();
 
-        const formattedMovements = movements.map(movement => ({
-            "user_id": movement.user_id,
-            "date": movement.date,
-            "category": movement.category,
-            "description": movement.description,
-            "amount": movement.amount
-        }));
+        const movements = await movementsCollection.aggregate([
+            { $match: { "user_id": new ObjectId(userId) }},
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryInfo"
+                }
+            },
+            {
+                $unwind: "$categoryInfo"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: 1,
+                    description: 1,
+                    amount: 1,
+                    category: "$categoryInfo.name"
+                }
+            }
+        ]).toArray();
 
-        res.json(formattedMovements);
+        res.json(movements);
     } catch (error) {
         console.error("Error retrieving movements:", error);
         res.status(500).send("Error retrieving movements data");
@@ -31,8 +46,8 @@ export async function getMovementsByYear(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const movements = await movementsCollection.find({ 
-            "user_id": new ObjectId(userId), 
+        const movements = await movementsCollection.find({
+            "user_id": new ObjectId(userId),
             "date": { $regex: `^${year}` }
         }).toArray();
 
