@@ -52,35 +52,45 @@ export async function getAllMovements(req, res) {
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
-        const movements = await movementsCollection.find({ user_id: userId }).toArray();
+        const aggregateQuery = [
+            { $match: { user_id: userId } },
+            {
+                $project: {
+                    year: { $year: "$date" },
+                    month: { $month: "$date" },
+                    amount: 1
+                }
+            },
+            {
+                $group: {
+                    _id: { year: "$year", month: "$month" },
+                    Income: { $sum: { $cond: [{ $gt: ["$amount", 0] }, "$amount", 0] } },
+                    Expenses: { $sum: { $cond: [{ $lt: ["$amount", 0] }, "$amount", 0] } }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    year: "$_id.year",
+                    month: "$_id.month",
+                    Income: { $abs: "$Income" },
+                    Expenses: { $abs: "$Expenses" }
+                }
+            },
+            { $sort: { year: 1, month: 1 } }
+        ];
+
+        const movements = await movementsCollection.aggregate(aggregateQuery).toArray();
 
         if (movements.length === 0) {
-            return res.status(404).json({ message: "No movements found for the user." });
+            return res.json([]);
         }
-        const groupedMovements = movements.reduce((acc, movement) => {
-            const [year, month] = movement.date.split("-");
-            const key = `${year}-${month}`;
-            if (!acc[key]) {
-                acc[key] = { Income: 0, Expenses: 0 };
-            }
-            if (movement.amount > 0) {
-                acc[key].Income += movement.amount;
-            } else {
-                acc[key].Expenses += Math.abs(movement.amount);
-            }
-            return acc;
-        }, {});
-        const response = Object.entries(groupedMovements).map(([key, values]) => {
-            const [year, month] = key.split("-");
-            return {
-                year,
-                month,
-                Income: Number(values.Income.toFixed(2)),
-                Expenses: Number(values.Expenses.toFixed(2))
-            };
-        }).sort((a, b) => a.year.localeCompare(b.year) || a.month.localeCompare(b.month));
+        const formattedMovements = movements.map(movement => ({
+            ...movement,
+            month: monthNames[movement.month - 1]
+        }));
 
-        res.json(response);
+        res.json(formattedMovements);
     } catch (error) {
         console.error("Failed to retrieve all movements:", error);
         res.status(500).send("Error retrieving all movements data");
