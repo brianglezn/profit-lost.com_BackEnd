@@ -49,20 +49,17 @@ export async function getMovementsByYear(req, res) {
 
 export async function getAllMovements(req, res) {
     const userId = req.user.userId;
-    console.log("User ID:", userId); // Log para verificar el userId recibido
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
         const movements = await movementsCollection.find({ user_id: userId }).toArray();
-        console.log("Movements found:", movements.length); // Log para verificar la cantidad de movimientos encontrados
 
         const formattedMovements = movements.map(movement => ({
-            date: movement.date.slice(0, 7),
+            date: movement.date,
             category: movement.category,
             description: movement.description,
             amount: movement.amount,
         }));
-        console.log("Formatted Movements:", formattedMovements); // Log para verificar los movimientos formateados
 
         res.json(formattedMovements);
     } catch (error) {
@@ -70,4 +67,5 @@ export async function getAllMovements(req, res) {
         res.status(500).send("Error retrieving movements data");
     }
 }
+
 
