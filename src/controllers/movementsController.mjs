@@ -55,16 +55,30 @@ export async function getAllMovements(req, res) {
         const movements = await movementsCollection.find({ user_id: userId }).toArray();
 
         if (movements.length === 0) {
-            return res.status(404).json({ message: "No movements found" });
+            return res.status(404).json({ message: "No movements found for the user." });
         }
-
-        const response = movements.map(movement => ({
-            date: movement.date,
-            type: movement.amount > 0 ? "Income" : "Expenses",
-            amount: Math.abs(movement.amount),
-            category: movement.category,
-            description: movement.description,
-        }));
+        const groupedMovements = movements.reduce((acc, movement) => {
+            const [year, month] = movement.date.split("-");
+            const key = `${year}-${month}`;
+            if (!acc[key]) {
+                acc[key] = { Income: 0, Expenses: 0 };
+            }
+            if (movement.amount > 0) {
+                acc[key].Income += movement.amount;
+            } else {
+                acc[key].Expenses += Math.abs(movement.amount);
+            }
+            return acc;
+        }, {});
+        const response = Object.entries(groupedMovements).map(([key, values]) => {
+            const [year, month] = key.split("-");
+            return {
+                year,
+                month,
+                Income: Number(values.Income.toFixed(2)),
+                Expenses: Number(values.Expenses.toFixed(2))
+            };
+        }).sort((a, b) => a.year.localeCompare(b.year) || a.month.localeCompare(b.month));
 
         res.json(response);
     } catch (error) {
