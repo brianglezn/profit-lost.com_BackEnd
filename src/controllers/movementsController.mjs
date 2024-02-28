@@ -1,11 +1,11 @@
 import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 export async function getMovementsByYear(req, res) {
     const { year } = req.params;
     const userId = req.user.userId;
-
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     try {
         const movementsCollection = client.db(DB_NAME).collection("movements");
@@ -55,17 +55,24 @@ export async function getAllMovements(req, res) {
         const aggregateQuery = [
             { $match: { user_id: userId } },
             {
-                $project: {
-                    year: { $year: "$date" },
-                    month: { $month: "$date" },
-                    amount: 1
+                $addFields: {
+                    year: { $substr: ["$date", 0, 4] },
+                    month: { $substr: ["$date", 5, 2] }
                 }
             },
             {
                 $group: {
                     _id: { year: "$year", month: "$month" },
-                    Income: { $sum: { $cond: [{ $gt: ["$amount", 0] }, "$amount", 0] } },
-                    Expenses: { $sum: { $cond: [{ $lt: ["$amount", 0] }, "$amount", 0] } }
+                    Income: {
+                        $sum: {
+                            $cond: [{ $gt: ["$amount", 0] }, "$amount", 0]
+                        }
+                    },
+                    Expenses: {
+                        $sum: {
+                            $cond: [{ $lt: ["$amount", 0] }, "$amount", 0]
+                        }
+                    }
                 }
             },
             {
@@ -73,21 +80,20 @@ export async function getAllMovements(req, res) {
                     _id: 0,
                     year: "$_id.year",
                     month: "$_id.month",
-                    Income: { $abs: "$Income" },
-                    Expenses: { $abs: "$Expenses" }
+                    Income: 1,
+                    Expenses: 1
                 }
             },
-            { $sort: { year: 1, month: 1 } }
+            { $sort: { "year": 1, "month": 1 } }
         ];
 
         const movements = await movementsCollection.aggregate(aggregateQuery).toArray();
 
-        if (movements.length === 0) {
-            return res.json([]);
-        }
         const formattedMovements = movements.map(movement => ({
-            ...movement,
-            month: monthNames[movement.month - 1]
+            year: movement.year,
+            month: monthNames[parseInt(movement.month, 10) - 1],
+            Income: movement.Income,
+            Expenses: movement.Expenses
         }));
 
         res.json(formattedMovements);
