@@ -81,3 +81,45 @@ export async function getMovementsByYear(req, res) {
     }
 }
 
+export async function getMovementsByYearAndMonth(req, res) {
+    const { year, month } = req.params;
+    const userId = req.user.userId;
+
+    const monthRegex = month ? `-${month}` : "";
+
+    try {
+        const movements = await movementsCollection.aggregate([
+            {
+                $match: {
+                    "user_id": new ObjectId(userId),
+                    "date": { $regex: `^${year}${monthRegex}` }
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryInfo"
+                }
+            },
+            {
+                $unwind: "$categoryInfo"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: 1,
+                    description: 1,
+                    amount: 1,
+                    category: "$categoryInfo.name"
+                }
+            }
+        ]).toArray();
+
+        res.json(movements);
+    } catch (error) {
+        console.error("Error retrieving movements by year and month:", error);
+        res.status(500).send("Error retrieving movements data by year and month");
+    }
+}
