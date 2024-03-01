@@ -25,7 +25,7 @@ export async function getAccountsByYear(req, res) {
             }}
         ]).toArray();
 
-        res.json(filteredAccounts);
+        res.json(accounts);
     } catch (error) {
         console.error("Error retrieving accounts by year:", error);
         res.status(500).send("Error retrieving accounts data by year");
