@@ -12,17 +12,20 @@ export async function getAccountsByYear(req, res) {
     try {
         const accounts = await accountsCollection.aggregate([
             { $match: { "user_id": new ObjectId(userId) } },
-            { $project: {
-                accountName: 1,
-                records: {
-                    $filter: {
-                        input: "$records",
-                        as: "record",
-                        cond: { $eq: ["$$record.year", parseInt(year)] }
-                    }
-                },
-                configuration: 1
-            }}
+            {
+                $project: {
+                    _id: 0,
+                    accountName: 1,
+                    records: {
+                        $filter: {
+                            input: "$records",
+                            as: "record",
+                            cond: { $eq: ["$$record.year", parseInt(year)] }
+                        }
+                    },
+                    configuration: 1
+                }
+            }
         ]).toArray();
 
         res.json(accounts);
