@@ -15,6 +15,6 @@ router.get('/movements/:year', authenticateToken, getMovementsByYear);
 router.get('/movements/:year/:month', authenticateToken, getMovementsByYearAndMonth);
 router.get('/accounts/all', authenticateToken, getAllAccounts);
 router.get('/accounts/:year', authenticateToken, getAccountsByYear);
-router.get('/user/:token', authenticateToken, getUserByToken);
+router.get('/user/me', authenticateToken, getUserByToken);
 
 export default router;
