@@ -4,6 +4,7 @@ import { authenticateToken } from '../middlewares/authMiddleware.mjs';
 import { register, login } from "../controllers/authController.mjs";
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts } from '../controllers/accountsController.mjs';
+import { getUserByToken } from '../controllers/usersController.mjs';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.get('/movements/:year', authenticateToken, getMovementsByYear);
 router.get('/movements/:year/:month', authenticateToken, getMovementsByYearAndMonth);
 router.get('/accounts/all', authenticateToken, getAllAccounts);
 router.get('/accounts/:year', authenticateToken, getAccountsByYear);
+router.get('/user/:token', authenticateToken, getUserByToken);
 
 export default router;
