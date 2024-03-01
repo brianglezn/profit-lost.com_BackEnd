@@ -5,6 +5,29 @@ import { DB_NAME } from "../config/constants.mjs";
 
 const accountsCollection = client.db(DB_NAME).collection("accounts");
 
+export async function getAllAccounts(req, res) {
+    const userId = req.user.userId;
+
+    try {
+        const accounts = await accountsCollection.aggregate([
+            { $match: { "user_id": new ObjectId(userId) } },
+            {
+                $project: {
+                    _id: 0,
+                    accountName: 1,
+                    records: 1,
+                    configuration: 1
+                }
+            }
+        ]).toArray();
+
+        res.json(accounts);
+    } catch (error) {
+        console.error("Error retrieving all accounts:", error);
+        res.status(500).send("Error retrieving all accounts data");
+    }
+}
+
 export async function getAccountsByYear(req, res) {
     const { year } = req.params;
     const userId = req.user.userId;
