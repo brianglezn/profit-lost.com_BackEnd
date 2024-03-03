@@ -5,10 +5,13 @@ import { DB_NAME } from "../config/constants.mjs";
 const usersCollection = client.db(DB_NAME).collection("users");
 
 export async function getUserByToken(req, res) {
-    const userId = req.user.userId; 
+    const userId = req.user.userId;
 
     try {
-        const user = await usersCollection.findOne({ "_id": new ObjectId(userId) });
+        const user = await usersCollection.findOne(
+            { "_id": new ObjectId(userId) },
+            { projection: { _id: 0, password: 0 } }
+        );
         if (user) {
             res.json(user);
         } else {
