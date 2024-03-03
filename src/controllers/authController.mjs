@@ -6,14 +6,16 @@ import { DB_NAME, JWT_KEY } from "../config/constants.mjs";
 
 export async function register(req, res) {
     try {
-        const { username, email, password } = req.body;
-        if (!username || !email || !password) {
-            return res.status(400).send("Username, email, and password are required");
+        const { username, name, surname, email, password } = req.body;
+        if (!username || !name || !surname || !email || !password) {
+            return res.status(400).send("Username, name, surname, email, and password are required");
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const usersCollection = client.db(DB_NAME).collection("users");
         const result = await usersCollection.insertOne({
             username,
+            name,
+            surname,
             email,
             password: hashedPassword,
         });
