@@ -10,6 +10,7 @@ export function authenticateToken(req, res, next) {
     jwt.verify(token, JWT_KEY, (err, user) => {
         if (err) return res.sendStatus(403);
 
+        console.log("User from token:", user); // Línea agregada para depuración
         req.user = user;
         next();
     });

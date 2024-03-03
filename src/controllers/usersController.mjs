@@ -7,6 +7,8 @@ const usersCollection = client.db(DB_NAME).collection("users");
 export async function getUserByToken(req, res) {
     const userId = req.user.id;
 
+    console.log("Looking for userId:", userId); // Línea agregada para depuración
+
     try {
         const user = await usersCollection.findOne({ "_id": new ObjectId(userId) });
         if (user) {
