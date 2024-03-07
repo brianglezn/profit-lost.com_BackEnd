@@ -5,39 +5,38 @@ import { DB_NAME } from "../config/constants.mjs";
 
 const movementsCollection = client.db(DB_NAME).collection("movements");
 
-export async function addMovement(req, res) {
+export async function getAllMovements(req, res) {
     const userId = req.user.userId;
-    const { date, description, amount, category } = req.body;
-
-    if (!description || typeof amount !== 'number') {
-        return res.status(400).send('Invalid data provided');
-    }
-
-    if (!ObjectId.isValid(category)) {
-        return res.status(400).send('Invalid category ID');
-    }
-
-    const dateRegex = /^\d{4}-\d{2}$/;
-    if (!dateRegex.test(date)) {
-        return res.status(400).send('Date must be in format YYYY-MM');
-    }
 
     try {
-        const newMovement = {
-            user_id: new ObjectId(userId),
-            date,
-            description,
-            amount,
-            category: new ObjectId(category)
-        };
+        const movements = await movementsCollection.aggregate([
+            { $match: { "user_id": new ObjectId(userId) } },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryInfo"
+                }
+            },
+            {
+                $unwind: "$categoryInfo"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: 1,
+                    description: 1,
+                    amount: 1,
+                    category: "$categoryInfo.name"
+                }
+            }
+        ]).toArray();
 
-        const result = await movementsCollection.insertOne(newMovement);
-
-        const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
-        res.status(201).json(insertedMovement);
+        res.json(movements);
     } catch (error) {
-        console.error("Error adding new movement:", error);
-        res.status(500).send("Error adding new movement: " + error.message);
+        console.error("Error retrieving movements:", error);
+        res.status(500).send(`Error adding new movement: ${error.message}`);
     }
 }
 
@@ -138,7 +137,6 @@ export async function addMovement(req, res) {
     }
 
     const dateRegex = /^\d{4}-\d{2}$/;
-
     if (!dateRegex.test(date)) {
         return res.status(400).send('Date must be in format YYYY-MM');
     }
@@ -153,13 +151,14 @@ export async function addMovement(req, res) {
         };
 
         const result = await movementsCollection.insertOne(newMovement);
-
-        res.status(201).json(result.ops[0]);
+        const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
+        res.status(201).json(insertedMovement);
     } catch (error) {
         console.error("Error adding new movement:", error);
-        res.status(500).send("Error adding new movement");
+        res.status(500).send("Error adding new movement: " + error.message);
     }
 }
+
 
 export async function removeMovement(req, res) {
     const { id } = req.params;
