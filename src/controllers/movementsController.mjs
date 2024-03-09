@@ -162,7 +162,6 @@ export async function addMovement(req, res) {
 export async function removeMovement(req, res) {
     const { id } = req.params;
 
-    // Verifica si el ID es un ObjectId válido
     if (!ObjectId.isValid(id)) {
         console.log(`Invalid ID format: ${id}`);
         return res.status(400).send("Invalid ID format");
@@ -171,9 +170,9 @@ export async function removeMovement(req, res) {
     try {
         console.log(`Attempting to remove movement with ID: ${id}`);
 
-        const result = await movementsCollection.deleteOne({ 
-            _id: new ObjectId(id), 
-            user_id: new ObjectId(req.user.userId) 
+        const result = await movementsCollection.deleteOne({
+            _id: new ObjectId(id),
+            user_id: new ObjectId(req.user.userId)
         });
 
         if (result.deletedCount === 0) {
@@ -189,28 +188,39 @@ export async function removeMovement(req, res) {
     }
 }
 
+import { ObjectId } from 'mongodb';
+
 export async function editMovement(req, res) {
     const { id } = req.params;
     const { date, description, amount, category } = req.body;
 
+    if (!ObjectId.isValid(id) || !ObjectId.isValid(category)) {
+        console.log(`Invalid ObjectId format for movement: ${id} or category: ${category}`);
+        return res.status(400).send("Invalid ObjectId format");
+    }
+
+    const updatedMovement = {
+        date,
+        description,
+        amount,
+        category: new ObjectId(category)
+    };
+
     try {
-        const updatedMovement = {
-            date,
-            description,
-            amount,
-            category: new ObjectId(category)
-        };
+        console.log(`Attempting to update movement with ID: ${id}`);
 
         const result = await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
             { $set: updatedMovement },
-            { returnOriginal: false }
+            { returnDocument: 'after' }
         );
 
         if (!result.value) {
+            console.log(`Movement not found with ID: ${id}`);
             return res.status(404).send("Movement not found");
         }
 
+        console.log(`Movement with ID ${id} updated successfully.`);
         res.json(result.value);
     } catch (error) {
         console.error("Error updating movement:", error);
