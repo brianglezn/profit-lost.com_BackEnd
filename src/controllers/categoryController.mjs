@@ -33,7 +33,9 @@ export async function addCategory(req, res) {
         };
 
         const result = await categoriesCollection.insertOne(newCategory);
-        res.status(201).json(result.ops[0]);
+        const insertedCategory = await categoriesCollection.findOne({ _id: result.insertedId });
+        res.status(201).json(insertedCategory);
+        
     } catch (error) {
         console.error("Error adding new category:", error);
         res.status(500).send("Error adding new category");
@@ -54,6 +56,12 @@ export async function editCategory(req, res) {
     }
 
     try {
+        const categoryExists = await categoriesCollection.findOne({ _id: new ObjectId(id), user_id: new ObjectId(userId) });
+
+        if (!categoryExists) {
+            return res.status(404).send("Category not found");
+        }
+
         const result = await categoriesCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(userId) },
             { $set: { name } },
@@ -61,7 +69,7 @@ export async function editCategory(req, res) {
         );
 
         if (!result.value) {
-            return res.status(404).send("Category not found");
+            return res.status(404).send("Category not found after update attempt");
         }
 
         res.json(result.value);
@@ -70,6 +78,7 @@ export async function editCategory(req, res) {
         res.status(500).send("Error updating category");
     }
 }
+
 
 export async function removeCategory(req, res) {
     const { id } = req.params;
