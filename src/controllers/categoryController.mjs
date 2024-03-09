@@ -27,6 +27,15 @@ export async function addCategory(req, res) {
     }
 
     try {
+        const existingCategory = await categoriesCollection.findOne({
+            name: name,
+            user_id: new ObjectId(userId)
+        });
+
+        if (existingCategory) {
+            return res.status(409).send("Category with the same name already exists");
+        }
+
         const newCategory = {
             name,
             user_id: new ObjectId(userId),
