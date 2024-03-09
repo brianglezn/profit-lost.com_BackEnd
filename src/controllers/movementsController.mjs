@@ -159,18 +159,30 @@ export async function addMovement(req, res) {
     }
 }
 
-
 export async function removeMovement(req, res) {
     const { id } = req.params;
 
+    // Verifica si el ID es un ObjectId válido
+    if (!ObjectId.isValid(id)) {
+        console.log(`Invalid ID format: ${id}`);
+        return res.status(400).send("Invalid ID format");
+    }
+
     try {
-        const result = await movementsCollection.deleteOne({ _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) });
+        console.log(`Attempting to remove movement with ID: ${id}`);
+
+        const result = await movementsCollection.deleteOne({ 
+            _id: new ObjectId(id), 
+            user_id: new ObjectId(req.user.userId) 
+        });
 
         if (result.deletedCount === 0) {
-            return res.status(404).send("Movement not found");
+            console.log("Movement not found or does not belong to the user:", id);
+            return res.status(404).send("Movement not found or does not belong to the user");
         }
 
-        res.status(200).send(`Movement with id ${id} deleted`);
+        console.log(`Movement with ID ${id} deleted successfully.`);
+        res.status(200).send(`Movement with ID ${id} deleted`);
     } catch (error) {
         console.error("Error removing movement:", error);
         res.status(500).send("Error removing movement");
