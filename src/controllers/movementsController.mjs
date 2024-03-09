@@ -218,13 +218,14 @@ export async function editMovement(req, res) {
             { returnDocument: 'after' }
         );
 
-        if (!result.value) {
+        if (!result.value && !result.lastErrorObject.updatedExisting) {
             return res.status(404).send("Movement not found");
         }
 
-        res.json(result.value);
+        res.json(result.value || { message: "Document updated, but no new data returned" });
     } catch (error) {
         console.error("Error updating movement:", error);
         res.status(500).send("Error updating movement");
     }
 }
+
