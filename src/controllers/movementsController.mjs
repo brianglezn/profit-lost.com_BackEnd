@@ -124,7 +124,7 @@ export async function getMovementsByYearAndMonth(req, res) {
     }
 }
 
-export async function getMovementsByCategory(req, res) {
+export async function getAllMovementsByCategory(req, res) {
     const { categoryId } = req.params;
     const userId = req.user.userId;
 
@@ -165,9 +165,10 @@ export async function getMovementsByCategory(req, res) {
         res.json(movements);
     } catch (error) {
         console.error("Error retrieving movements by category:", error);
-        res.status(500).send("Error retrieving movements data by category");
+        res.status(500).send("Error retrieving movements data by category: " + error.message);
     }
 }
+
 
 export async function addMovement(req, res) {
     const userId = req.user.userId;
