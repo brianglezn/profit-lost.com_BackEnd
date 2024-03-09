@@ -24,7 +24,7 @@ export async function getAllMovements(req, res) {
             },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     date: 1,
                     description: 1,
                     amount: 1,
@@ -65,7 +65,7 @@ export async function getMovementsByYear(req, res) {
             },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     date: 1,
                     description: 1,
                     amount: 1,
@@ -108,7 +108,7 @@ export async function getMovementsByYearAndMonth(req, res) {
             },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     date: 1,
                     description: 1,
                     amount: 1,
@@ -187,8 +187,6 @@ export async function removeMovement(req, res) {
         res.status(500).send("Error removing movement");
     }
 }
-
-import { ObjectId } from 'mongodb';
 
 export async function editMovement(req, res) {
     const { id } = req.params;
