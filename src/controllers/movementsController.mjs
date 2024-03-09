@@ -129,12 +129,14 @@ export async function getMovementsByCategory(req, res) {
     const userId = req.user.userId;
 
     try {
+        console.log(`Fetching movements for category ${categoryId}...`);
+
         const movements = await movementsCollection.aggregate([
-            { 
-                $match: { 
+            {
+                $match: {
                     "user_id": new ObjectId(userId),
                     "category": new ObjectId(categoryId)
-                } 
+                }
             },
             {
                 $lookup: {
@@ -158,13 +160,14 @@ export async function getMovementsByCategory(req, res) {
             }
         ]).toArray();
 
+        console.log(`Found ${movements.length} movements for category ${categoryId}`);
+
         res.json(movements);
     } catch (error) {
         console.error("Error retrieving movements by category:", error);
         res.status(500).send("Error retrieving movements data by category");
     }
 }
-
 
 export async function addMovement(req, res) {
     const userId = req.user.userId;
