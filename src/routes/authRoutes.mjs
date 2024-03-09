@@ -5,6 +5,7 @@ import { register, login } from "../controllers/authController.mjs";
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts } from '../controllers/accountsController.mjs';
 import { getUserByToken } from '../controllers/usersController.mjs';
+import { getAllCategories } from '../controllers/categoryController.mjs';
 
 const router = Router();
 
@@ -19,6 +20,9 @@ router.delete('/movements/remove/:id', authenticateToken, removeMovement);
 router.put('/movements/edit/:id', authenticateToken, editMovement);
 router.get('/movements/:year', authenticateToken, getMovementsByYear);
 router.get('/movements/:year/:month', authenticateToken, getMovementsByYearAndMonth);
+
+// Rutas de categorias
+router.get('/categories/all', authenticateToken, getAllCategories);
 
 // Rutas de cuentas
 router.get('/accounts/all', authenticateToken, getAllAccounts);
