@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { authenticateToken } from '../middlewares/authMiddleware.mjs';
 import { register, login } from "../controllers/authController.mjs";
-import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement } from '../controllers/movementsController.mjs';
+import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, getMovementsByCategory } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts } from '../controllers/accountsController.mjs';
 import { getUserByToken } from '../controllers/usersController.mjs';
 import { getAllCategories, addCategory, editCategory, removeCategory } from '../controllers/categoryController.mjs';
@@ -17,6 +17,7 @@ router.post("/login", login);
 router.get('/movements/all', authenticateToken, getAllMovements);
 router.get('/movements/:year', authenticateToken, getMovementsByYear);
 router.get('/movements/:year/:month', authenticateToken, getMovementsByYearAndMonth);
+router.get('/movements/category/:categoryId', authenticateToken, getMovementsByCategory);
 router.post('/movements/add', authenticateToken, addMovement);
 router.put('/movements/edit/:id', authenticateToken, editMovement);
 router.delete('/movements/remove/:id', authenticateToken, removeMovement);
