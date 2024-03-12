@@ -4,6 +4,7 @@ import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
 const categoriesCollection = client.db(DB_NAME).collection("categories");
+const movementsCollection = client.db(DB_NAME).collection("movements");
 
 export async function getAllCategories(req, res) {
     const userId = req.user.userId;
@@ -98,6 +99,15 @@ export async function removeCategory(req, res) {
     }
 
     try {
+        const movementsAssociated = await movementsCollection.countDocuments({
+            user_id: new ObjectId(userId),
+            category: new ObjectId(id)
+        });
+
+        if (movementsAssociated > 0) {
+            return res.status(400).send("Cannot delete category because there are movements associated with it.");
+        }
+
         const result = await categoriesCollection.deleteOne({ _id: new ObjectId(id), user_id: new ObjectId(userId) });
 
         if (result.deletedCount === 0) {

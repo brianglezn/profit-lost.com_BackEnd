@@ -124,52 +124,6 @@ export async function getMovementsByYearAndMonth(req, res) {
     }
 }
 
-export async function getAllMovementsByCategory(req, res) {
-    const { categoryId } = req.params;
-    const userId = req.user.userId;
-
-    try {
-        console.log(`Fetching movements for category ${categoryId}...`);
-
-        const movements = await movementsCollection.aggregate([
-            {
-                $match: {
-                    "user_id": new ObjectId(userId),
-                    "category": new ObjectId(categoryId)
-                }
-            },
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "category",
-                    foreignField: "_id",
-                    as: "categoryInfo"
-                }
-            },
-            {
-                $unwind: "$categoryInfo"
-            },
-            {
-                $project: {
-                    _id: 1,
-                    date: 1,
-                    description: 1,
-                    amount: 1,
-                    category: "$categoryInfo.name"
-                }
-            }
-        ]).toArray();
-
-        console.log(`Found ${movements.length} movements for category ${categoryId}`);
-
-        res.json(movements);
-    } catch (error) {
-        console.error("Error retrieving movements by category:", error);
-        res.status(500).send("Error retrieving movements data by category: " + error.message);
-    }
-}
-
-
 export async function addMovement(req, res) {
     const userId = req.user.userId;
     const { date, description, amount, category } = req.body;
