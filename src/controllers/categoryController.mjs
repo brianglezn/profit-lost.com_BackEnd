@@ -62,41 +62,43 @@ export async function editCategory(req, res) {
         return res.status(400).send("Invalid category ID format");
     }
 
-    // Verificar que se ha proporcionado un nombre
     if (!name) {
         console.log("Name is required");
         return res.status(400).send("Name is required");
     }
 
     try {
-        // Convertir id y userId a ObjectId para la consulta
         const categoryId = new ObjectId(id);
         const userObjectId = new ObjectId(userId);
 
-        console.log("Attempting to edit category:", { categoryId, userObjectId, name });
+        console.log("Attempting to edit category:", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name });
 
-        // Buscar y actualizar la categoría
-        const result = await categoriesCollection.findOneAndUpdate(
+        // Realiza la operación de actualización
+        const updateResult = await categoriesCollection.updateOne(
             { _id: categoryId, user_id: userObjectId },
-            { $set: { name } },
-            { returnDocument: 'after' } // Para MongoDB Driver versión 4.x
+            { $set: { name: name } }
         );
 
-        // Verificar si la categoría fue encontrada y actualizada
-        if (!result.value) {
-            console.log("Category not found or not updated", { categoryId, userObjectId });
-            return res.status(404).send("Category not found after update attempt");
+        // Verificar si la categoría fue encontrada
+        if (updateResult.matchedCount === 0) {
+            console.log("Category not found", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString() });
+            return res.status(404).send("Category not found");
         }
 
-        // Categoría actualizada con éxito
-        console.log("Category updated successfully:", result.value);
-        res.json(result.value);
+        // Verificar si la categoría fue actualizada
+        if (updateResult.modifiedCount === 0) {
+            console.log("Category not updated", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString() });
+            // Podrías decidir devolver un estado específico aquí, p.ej., 304 Not Modified
+            return res.status(200).send("Category not updated, no changes made.");
+        }
+
+        console.log("Category updated successfully", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name });
+        res.status(200).send("Category updated successfully");
     } catch (error) {
         console.error("Error updating category:", error);
         res.status(500).send("Error updating category");
     }
 }
-
 
 export async function removeCategory(req, res) {
     const { id } = req.params;
