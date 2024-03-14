@@ -45,7 +45,7 @@ export async function addCategory(req, res) {
         const result = await categoriesCollection.insertOne(newCategory);
         const insertedCategory = await categoriesCollection.findOne({ _id: result.insertedId });
         res.status(201).json(insertedCategory);
-        
+
     } catch (error) {
         console.error("Error adding new category:", error);
         res.status(500).send("Error adding new category");
@@ -58,30 +58,38 @@ export async function editCategory(req, res) {
     const userId = req.user.userId;
 
     if (!ObjectId.isValid(id)) {
+        console.log("Invalid category ID format:", id);
         return res.status(400).send("Invalid category ID format");
     }
 
+    // Verificar que se ha proporcionado un nombre
     if (!name) {
+        console.log("Name is required");
         return res.status(400).send("Name is required");
     }
 
     try {
-        const categoryExists = await categoriesCollection.findOne({ _id: new ObjectId(id), user_id: new ObjectId(userId) });
+        // Convertir id y userId a ObjectId para la consulta
+        const categoryId = new ObjectId(id);
+        const userObjectId = new ObjectId(userId);
 
-        if (!categoryExists) {
-            return res.status(404).send("Category not found");
-        }
+        console.log("Attempting to edit category:", { categoryId, userObjectId, name });
 
+        // Buscar y actualizar la categoría
         const result = await categoriesCollection.findOneAndUpdate(
-            { _id: new ObjectId(id), user_id: new ObjectId(userId) },
+            { _id: categoryId, user_id: userObjectId },
             { $set: { name } },
-            { returnDocument: 'after' }
+            { returnDocument: 'after' } // Para MongoDB Driver versión 4.x
         );
 
+        // Verificar si la categoría fue encontrada y actualizada
         if (!result.value) {
+            console.log("Category not found or not updated", { categoryId, userObjectId });
             return res.status(404).send("Category not found after update attempt");
         }
 
+        // Categoría actualizada con éxito
+        console.log("Category updated successfully:", result.value);
         res.json(result.value);
     } catch (error) {
         console.error("Error updating category:", error);
