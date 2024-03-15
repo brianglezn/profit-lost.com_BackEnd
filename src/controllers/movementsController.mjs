@@ -4,6 +4,7 @@ import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
 const movementsCollection = client.db(DB_NAME).collection("movements");
+const dateRegex = /^\d{4}-\d{2}(-\d{2})?$/;
 
 export async function getAllMovements(req, res) {
     const userId = req.user.userId;
@@ -136,9 +137,8 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid category ID');
     }
 
-    const dateRegex = /^\d{4}-\d{2}$/;
     if (!dateRegex.test(date)) {
-        return res.status(400).send('Date must be in format YYYY-MM');
+        return res.status(400).send('Date must be in format YYYY-MM or YYYY-MM-DD');
     }
 
     try {
@@ -204,6 +204,10 @@ export async function editMovement(req, res) {
         return res.status(400).send('Invalid description provided');
     }
 
+    if (!dateRegex.test(date)) {
+        return res.status(400).send('Date must be in format YYYY-MM or YYYY-MM-DD');
+    }
+
     const updatedMovement = {
         date,
         description,
@@ -228,4 +232,3 @@ export async function editMovement(req, res) {
         res.status(500).send("Error updating movement");
     }
 }
-

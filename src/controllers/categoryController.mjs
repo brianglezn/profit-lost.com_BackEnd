@@ -73,22 +73,18 @@ export async function editCategory(req, res) {
 
         console.log("Attempting to edit category:", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name });
 
-        // Realiza la operación de actualización
         const updateResult = await categoriesCollection.updateOne(
             { _id: categoryId, user_id: userObjectId },
             { $set: { name: name } }
         );
 
-        // Verificar si la categoría fue encontrada
         if (updateResult.matchedCount === 0) {
             console.log("Category not found", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString() });
             return res.status(404).send("Category not found");
         }
 
-        // Verificar si la categoría fue actualizada
         if (updateResult.modifiedCount === 0) {
             console.log("Category not updated", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString() });
-            // Podrías decidir devolver un estado específico aquí, p.ej., 304 Not Modified
             return res.status(200).send("Category not updated, no changes made.");
         }
 
