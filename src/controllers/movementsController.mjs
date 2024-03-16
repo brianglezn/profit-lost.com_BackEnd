@@ -195,15 +195,12 @@ export async function editMovement(req, res) {
     if (!ObjectId.isValid(id) || !ObjectId.isValid(category)) {
         return res.status(400).send("Invalid ObjectId format");
     }
-
     if (typeof amount !== 'number' || amount <= 0) {
         return res.status(400).send('Invalid amount provided');
     }
-
     if (typeof description !== 'string' || !description.trim()) {
         return res.status(400).send('Invalid description provided');
     }
-
     if (!dateRegex.test(date)) {
         return res.status(400).send('Date must be in format YYYY-MM or YYYY-MM-DD');
     }
@@ -222,11 +219,11 @@ export async function editMovement(req, res) {
             { returnDocument: 'after' }
         );
 
-        if (!result.value && !result.lastErrorObject.updatedExisting) {
+        if (!result.value) {
             return res.status(404).send("Movement not found");
         }
 
-        res.json(result.value || { message: "Document updated, but no new data returned" });
+        res.json(result.value);
     } catch (error) {
         console.error("Error updating movement:", error);
         res.status(500).send("Error updating movement");
