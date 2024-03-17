@@ -219,7 +219,10 @@ export async function editMovement(req, res) {
             { returnDocument: 'after' }
         );
 
+        console.log("findOneAndUpdate result:", result);
+
         if (!result.value) {
+            console.log("No document found or updated with ID:", id);
             return res.status(404).send("Movement not found");
         } else {
             res.json(result.value);
@@ -229,4 +232,3 @@ export async function editMovement(req, res) {
         res.status(500).send("Error updating movement: " + error.message);
     }
 }
-
