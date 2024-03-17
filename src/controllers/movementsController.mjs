@@ -212,6 +212,8 @@ export async function editMovement(req, res) {
         category: new ObjectId(category)
     };
 
+    console.log("Attempting to update document with ID:", id, "for user ID:", req.user.userId);
+
     try {
         const result = await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
@@ -223,6 +225,7 @@ export async function editMovement(req, res) {
             console.log("No document found or updated with ID:", id);
             return res.status(404).send("Movement not found");
         } else {
+            console.log("Document updated successfully:", result.value);
             res.json(result.value);
         }
     } catch (error) {
@@ -230,3 +233,4 @@ export async function editMovement(req, res) {
         res.status(500).send("Error updating movement: " + error.message);
     }
 }
+
