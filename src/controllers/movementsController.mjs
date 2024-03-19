@@ -4,7 +4,7 @@ import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
 const movementsCollection = client.db(DB_NAME).collection("movements");
-const dateRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+const dateRegex = /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?)|(\d{4}-\d{2})$/;
 
 export async function getAllMovements(req, res) {
     const userId = req.user.userId;
