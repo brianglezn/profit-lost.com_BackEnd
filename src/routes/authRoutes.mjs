@@ -9,6 +9,11 @@ import { getAllCategories, addCategory, editCategory, removeCategory } from '../
 
 const router = Router();
 
+// Ruta de "despertar" para verificar si el backend está activo
+router.get('/ping', (req, res) => {
+    res.status(200).json({ message: 'Pong' });
+});
+
 // Rutas de autenticación
 router.post("/register", register);
 router.post("/login", login);
