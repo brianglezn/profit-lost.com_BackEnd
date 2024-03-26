@@ -212,22 +212,14 @@ export async function editMovement(req, res) {
         category: new ObjectId(category)
     };
 
-    console.log("Attempting to update document with ID:", id, "for user ID:", req.user.userId);
-
     try {
-        const result = await movementsCollection.findOneAndUpdate(
+        await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
             { $set: updatedMovement },
             { returnDocument: 'after' }
         );
 
-        console.log(result);
-
-        if (result.value) {
-            res.status(200).json(result.value);
-        } else {
-            res.status(404).send("Movement not found or does not belong to the user");
-        }
+        res.status(200).send(`Movement with updated`);
     } catch (error) {
         console.error("Error updating movement:", error);
         res.status(500).send("Error updating movement: " + error.message);
