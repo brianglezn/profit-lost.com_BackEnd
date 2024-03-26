@@ -221,6 +221,8 @@ export async function editMovement(req, res) {
             { returnDocument: 'after' }
         );
 
+        console.log(result);
+
         if (result.value) {
             res.status(200).json(result.value);
         } else {
