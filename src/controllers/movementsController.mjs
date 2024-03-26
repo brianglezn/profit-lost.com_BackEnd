@@ -195,7 +195,7 @@ export async function editMovement(req, res) {
     if (!ObjectId.isValid(id) || !ObjectId.isValid(category)) {
         return res.status(400).send("Invalid ObjectId format");
     }
-    if (typeof amount !== 'number' || amount <= 0) {
+    if (typeof amount !== 'number') {
         return res.status(400).send('Invalid amount provided');
     }
     if (typeof description !== 'string' || !description.trim()) {
@@ -215,13 +215,17 @@ export async function editMovement(req, res) {
     console.log("Attempting to update document with ID:", id, "for user ID:", req.user.userId);
 
     try {
-        await movementsCollection.findOneAndUpdate(
+        const result = await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
             { $set: updatedMovement },
             { returnDocument: 'after' }
         );
 
-        res.status(200).send(`Movement with ID ${id} updated`);
+        if (result.value) {
+            res.status(200).json(result.value);
+        } else {
+            res.status(404).send("Movement not found or does not belong to the user");
+        }
     } catch (error) {
         console.error("Error updating movement:", error);
         res.status(500).send("Error updating movement: " + error.message);
