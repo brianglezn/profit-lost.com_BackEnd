@@ -57,8 +57,8 @@ export async function requestPasswordReset(req, res) {
             return res.status(404).send("User not found");
         }
 
-        const resetToken = jwt.sign({ userId: user._id.toString() }, JWT_KEY, { expiresIn: '15m' });
-        await usersCollection.updateOne({ _id: user._id }, { $set: { resetToken } });
+        const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+        await usersCollection.updateOne({ _id: user._id }, { $set: { resetToken, resetTokenExpiry: new Date(Date.now() + 15*60000) } });
 
         let transporter = nodemailer.createTransport({
             host: "smtp.hostinger.com",
