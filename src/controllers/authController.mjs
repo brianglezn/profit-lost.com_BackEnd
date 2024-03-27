@@ -80,24 +80,29 @@ export async function requestPasswordReset(req, res) {
             to: email,
             subject: "Restablecimiento de Contraseña",
             html: `
-            <div style="font-family: 'Arial', sans-serif; color: #212529;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://res.cloudinary.com/dz0mwxb0v/image/upload/v1697122157/profit-lost.com/logo/logo_profit-lost.svg" alt="Profit-Lost Logo" style="max-width: 150px;">
-                </div>
-                <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ffd5a8; border-radius: 15px; background-color: #fff7ed;">
-                    <h2 style="color: #fe6f14;">Código de Verificación</h2>
-                    <p style="font-size: 16px;">Aquí está tu código de verificación de acceso:</p>
-                    <div style="background-color: #ffecd4; padding: 10px; text-align: center; margin-bottom: 20px; font-size: 24px; border-radius: 5px; color: #7e2a10;">
-                        ${resetToken}
+                <div style="font-family: 'Arial', sans-serif; color: #212529;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="cid:logo_profit_lost" alt="Profit-Lost Logo" style="max-width: 150px;">
                     </div>
-                    <p style="font-size: 14px;">Por favor, asegúrate de no compartir nunca este código con nadie.</p>
-                    <p style="font-size: 14px; color: #9d300f;">Nota: el código expirará en 15 minutos.</p>
+                    <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ffd5a8; border-radius: 15px; background-color: #fff7ed;">
+                        <h2 style="color: #fe6f14;">Código de Verificación</h2>
+                        <p style="font-size: 16px;">Aquí está tu código de verificación de acceso:</p>
+                        <div style="background-color: #ffecd4; padding: 10px; text-align: center; margin-bottom: 20px; font-size: 24px; border-radius: 5px; color: #7e2a10;">
+                            ${resetToken}
+                        </div>
+                        <p style="font-size: 14px;">Por favor, asegúrate de no compartir nunca este código con nadie.</p>
+                        <p style="font-size: 14px; color: #9d300f;">Nota: el código expirará en 15 minutos.</p>
+                    </div>
+                    <div style="text-align: center; margin-top: 30px; color: #441206; font-size: 12px;">
+                        <p>Has recibido este email porque estás registrado en Profit-Lost.</p>
+                    </div>
                 </div>
-                <div style="text-align: center; margin-top: 30px; color: #441206; font-size: 12px;">
-                    <p>Has recibido este email porque estás registrado en Profit-Lost.</p>
-                </div>
-            </div>
             `,
+            attachments: [{
+                filename: 'logo_profit-lost.svg',
+                path: 'https://res.cloudinary.com/dz0mwxb0v/image/upload/v1697122157/profit-lost.com/logo/logo_profit-lost.svg',
+                cid: 'logo_profit_lost'
+            }]
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
@@ -114,6 +119,7 @@ export async function requestPasswordReset(req, res) {
         res.status(500).send("Error requesting password reset.");
     }
 }
+
 
 export async function resetPassword(req, res) {
     const { token, newPassword } = req.body;
