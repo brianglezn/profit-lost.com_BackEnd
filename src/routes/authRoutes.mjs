@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { authenticateToken } from '../middlewares/authMiddleware.mjs';
-import { register, login } from "../controllers/authController.mjs";
+import { register, login, requestPasswordReset, resetPassword } from "../controllers/authController.mjs";
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts } from '../controllers/accountsController.mjs';
 import { getUserByToken } from '../controllers/usersController.mjs';
@@ -17,6 +17,8 @@ router.get('/ping', (req, res) => {
 // Rutas de autenticación
 router.post("/register", register);
 router.post("/login", login);
+router.post("/requestPasswordReset", requestPasswordReset);
+router.post("/resetPassword", resetPassword);
 
 // Rutas de movimientos
 router.get('/movements/all', authenticateToken, getAllMovements);
