@@ -63,10 +63,10 @@ export async function requestPasswordReset(req, res) {
         let transporter = nodemailer.createTransport({
             host: "smtp.hostinger.com",
             port: 465,
-            secure: true, // true para conexiones seguras
+            secure: true,
             auth: {
                 user: "no-reply@profit-lost.com",
-                pass: process.env.EMAIL_PASSWORD, // La contraseña real de tu correo
+                pass: process.env.EMAIL_PASSWORD,
             },
         });
 
@@ -75,11 +75,23 @@ export async function requestPasswordReset(req, res) {
             to: email,
             subject: "Restablecimiento de Contraseña",
             html: `
-                <p>Hola,</p>
-                <p>Has solicitado restablecer tu contraseña. Por favor, utiliza el siguiente enlace para establecer una nueva:</p>
-                <a href="http://profit-lost.com/reset-password?token=${resetToken}">Restablecer Contraseña</a>
-                <p>Este enlace solo es válido por 15 minutos.</p>
-                <p>Si no has solicitado esto, por favor ignora este correo.</p>
+            <div style="font-family: 'Arial', sans-serif; color: #212529;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://res.cloudinary.com/dz0mwxb0v/image/upload/v1697122157/profit-lost.com/logo/logo_profit-lost.svg" alt="Profit-Lost Logo" style="max-width: 150px;">
+                </div>
+                <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ffd5a8; border-radius: 15px; background-color: #fff7ed;">
+                    <h2 style="color: #fe6f14;">Código de Verificación</h2>
+                    <p style="font-size: 16px;">Aquí está tu código de verificación de acceso:</p>
+                    <div style="background-color: #ffecd4; padding: 10px; text-align: center; margin-bottom: 20px; font-size: 24px; border-radius: 5px; color: #7e2a10;">
+                        ${resetToken}
+                    </div>
+                    <p style="font-size: 14px;">Por favor, asegúrate de no compartir nunca este código con nadie.</p>
+                    <p style="font-size: 14px; color: #9d300f;">Nota: el código expirará en 15 minutos.</p>
+                </div>
+                <div style="text-align: center; margin-top: 30px; color: #441206; font-size: 12px;">
+                    <p>Has recibido este email porque estás registrado en Profit-Lost.</p>
+                </div>
+            </div>
             `,
         };
 
