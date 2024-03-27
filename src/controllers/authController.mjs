@@ -58,7 +58,12 @@ export async function requestPasswordReset(req, res) {
         }
 
         const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
-        await usersCollection.updateOne({ _id: user._id }, { $set: { resetToken, resetTokenExpiry: new Date(Date.now() + 15*60000) } });
+        await usersCollection.updateOne({ _id: user._id }, {
+            $set: {
+                resetToken,
+                resetTokenExpiry: new Date(Date.now() + 15 * 60000)
+            }
+        });
 
         let transporter = nodemailer.createTransport({
             host: "smtp.hostinger.com",
@@ -113,16 +118,22 @@ export async function requestPasswordReset(req, res) {
 export async function resetPassword(req, res) {
     const { token, newPassword } = req.body;
     try {
-        const decoded = jwt.verify(token, JWT_KEY);
         const usersCollection = client.db(DB_NAME).collection("users");
-        const user = await usersCollection.findOne({ _id: ObjectId(decoded.userId), resetToken: token });
+        const user = await usersCollection.findOne({ resetToken: token });
 
         if (!user) {
-            return res.status(400).send("Invalid or expired reset token.");
+            return res.status(400).send("Invalid reset token.");
+        }
+
+        if (new Date() > user.resetTokenExpiry) {
+            return res.status(400).send("Reset token has expired.");
         }
 
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        await usersCollection.updateOne({ _id: user._id }, { $set: { password: hashedNewPassword }, $unset: { resetToken: "" } });
+        await usersCollection.updateOne({ _id: user._id }, {
+            $set: { password: hashedNewPassword },
+            $unset: { resetToken: "", resetTokenExpiry: "" }
+        });
 
         res.send("Password has been reset successfully.");
     } catch (error) {
