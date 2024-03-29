@@ -8,14 +8,24 @@ import { DB_NAME, JWT_KEY } from "../config/constants.mjs";
 async function checkUsernameExists(username) {
     const usersCollection = client.db(DB_NAME).collection("users");
     const existingUser = await usersCollection.findOne({ username });
+    if (existingUser) {
+      setUsernameError('Username already exists');
+    } else {
+      setUsernameError('');
+    }
     return !!existingUser;
-}
-
-async function checkEmailExists(email) {
+  }
+  
+  async function checkEmailExists(email) {
     const usersCollection = client.db(DB_NAME).collection("users");
     const existingUser = await usersCollection.findOne({ email });
+    if (existingUser) {
+      setEmailError('Email already exists');
+    } else {
+      setEmailError('');
+    }
     return !!existingUser;
-}
+  }
 
 export async function register(req, res) {
     try {
