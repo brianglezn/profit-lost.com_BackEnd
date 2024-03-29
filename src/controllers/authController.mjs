@@ -1,10 +1,21 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from 'nodemailer';
-import { ObjectId } from 'mongodb';
 
 import { client } from "../config/database.mjs";
 import { DB_NAME, JWT_KEY } from "../config/constants.mjs";
+
+async function checkUsernameExists(username) {
+    const usersCollection = client.db(DB_NAME).collection("users");
+    const existingUser = await usersCollection.findOne({ username });
+    return !!existingUser;
+}
+
+async function checkEmailExists(email) {
+    const usersCollection = client.db(DB_NAME).collection("users");
+    const existingUser = await usersCollection.findOne({ email });
+    return !!existingUser;
+}
 
 export async function register(req, res) {
     try {
@@ -12,7 +23,19 @@ export async function register(req, res) {
         if (!username || !name || !surname || !email || !password) {
             return res.status(400).send("Username, name, surname, email, and password are required");
         }
+
+        const usernameExists = await checkUsernameExists(username);
+        if (usernameExists) {
+            return res.status(400).send("Username already exists");
+        }
+
+        const emailExists = await checkEmailExists(email);
+        if (emailExists) {
+            return res.status(400).send("Email already exists");
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const usersCollection = client.db(DB_NAME).collection("users");
         const result = await usersCollection.insertOne({
             username,
@@ -21,6 +44,7 @@ export async function register(req, res) {
             email,
             password: hashedPassword,
         });
+
         res.status(201).send(`User created with id ${result.insertedId}`);
     } catch (e) {
         console.error(e);
