@@ -9,18 +9,18 @@ import { getAllCategories, addCategory, editCategory, removeCategory } from '../
 
 const router = Router();
 
-// Ruta de "despertar" para verificar si el backend está activo
+// "wake up" path to check if the backend is active
 router.get('/ping', (req, res) => {
     res.status(200).json({ message: 'Pong' });
 });
 
-// Rutas de autenticación
+// Authentication paths
 router.post("/register", register);
 router.post("/login", login);
 router.post("/requestPasswordReset", requestPasswordReset);
 router.post("/resetPassword", resetPassword);
 
-// Rutas de movimientos
+// Movement routes
 router.get('/movements/all', authenticateToken, getAllMovements);
 router.get('/movements/:year', authenticateToken, getMovementsByYear);
 router.get('/movements/:year/:month', authenticateToken, getMovementsByYearAndMonth);
@@ -28,17 +28,17 @@ router.post('/movements/add', authenticateToken, addMovement);
 router.put('/movements/edit/:id', authenticateToken, editMovement);
 router.delete('/movements/remove/:id', authenticateToken, removeMovement);
 
-// Rutas de categorias
+// Routes of categories
 router.get('/categories/all', authenticateToken, getAllCategories);
 router.post('/categories/add', authenticateToken, addCategory);
 router.put('/categories/edit/:id', authenticateToken, editCategory);
 router.delete('/categories/remove/:id', authenticateToken, removeCategory);
 
-// Rutas de cuentas
+// Account Routes
 router.get('/accounts/all', authenticateToken, getAllAccounts);
 router.get('/accounts/:year', authenticateToken, getAccountsByYear);
 
-// Rutas de usuarios
+// User routes
 router.get('/user/me', authenticateToken, getUserByToken);
 
 export default router;
