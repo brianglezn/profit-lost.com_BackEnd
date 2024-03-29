@@ -26,12 +26,12 @@ export async function register(req, res) {
 
         const usernameExists = await checkUsernameExists(username);
         if (usernameExists) {
-            return res.status(400).send("Username already exists");
+            return res.status(400).send({ error: "Username already exists" });
         }
 
         const emailExists = await checkEmailExists(email);
         if (emailExists) {
-            return res.status(400).send("Email already exists");
+            return res.status(400).send({ error: "Email already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,10 +45,10 @@ export async function register(req, res) {
             password: hashedPassword,
         });
 
-        res.status(201).send(`User created with id ${result.insertedId}`);
+        res.status(201).send({ success: true, message: `User created with id ${result.insertedId}` });
     } catch (e) {
         console.error(e);
-        res.status(500).send("Error creating user: " + e.message);
+        res.status(500).send({ error: "Error creating user: " + e.message });
     }
 }
 
