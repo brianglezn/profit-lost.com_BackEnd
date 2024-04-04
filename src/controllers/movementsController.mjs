@@ -133,12 +133,20 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
+    let parsedDate;
+    try {
+        parsedDate = new Date(date);
+        if (isNaN(parsedDate)) throw new Error('Invalid date format');
+    } catch (error) {
+        return res.status(400).send('Invalid date format');
+    }
+
     const newMovement = {
         user_id: new ObjectId(userId),
-        date,
+        date: parsedDate,
         description,
         amount,
-        category: new ObjectId(category)
+        category: new ObjectId(category),
     };
 
     try {
@@ -150,6 +158,7 @@ export async function addMovement(req, res) {
         res.status(500).send("Error adding new movement: " + error.message);
     }
 }
+
 
 export async function removeMovement(req, res) {
     const { id } = req.params;
