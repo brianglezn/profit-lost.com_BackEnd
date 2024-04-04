@@ -137,19 +137,15 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid category ID');
     }
 
-    if (!dateRegex.test(date)) {
-        return res.status(400).send('Date must be in format YYYY-MM or YYYY-MM-DD');
-    }
+    const newMovement = {
+        user_id: new ObjectId(userId),
+        date,
+        description,
+        amount,
+        category: new ObjectId(category)
+    };
 
     try {
-        const newMovement = {
-            user_id: new ObjectId(userId),
-            date,
-            description,
-            amount,
-            category: new ObjectId(category)
-        };
-
         const result = await movementsCollection.insertOne(newMovement);
         const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
         res.status(201).json(insertedMovement);
