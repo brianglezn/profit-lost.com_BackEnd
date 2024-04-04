@@ -129,26 +129,21 @@ export async function addMovement(req, res) {
     const userId = req.user.userId;
     const { date, description, amount, category } = req.body;
 
-    if (!description || typeof amount !== 'number') {
+    if (!description || typeof amount !== 'number' || !ObjectId.isValid(category)) {
         return res.status(400).send('Invalid data provided');
     }
 
-    if (!ObjectId.isValid(category)) {
-        return res.status(400).send('Invalid category ID');
-    }
-
-    const newMovement = {
-        user_id: new ObjectId(userId),
-        date,
-        description,
-        amount,
-        category: new ObjectId(category)
-    };
-
     try {
-        const result = await movementsCollection.insertOne(newMovement);
-        const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
-        res.status(201).json(insertedMovement);
+        const newMovement = {
+            user_id: new ObjectId(userId),
+            date: new Date(date),
+            description,
+            amount,
+            category: new ObjectId(category),
+        };
+
+        await movementsCollection.insertOne(newMovement);
+        res.status(201).send('Movement added successfully');
     } catch (error) {
         console.error("Error adding new movement:", error);
         res.status(500).send("Error adding new movement: " + error.message);
