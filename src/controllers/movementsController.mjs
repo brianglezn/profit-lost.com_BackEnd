@@ -193,25 +193,18 @@ export async function editMovement(req, res) {
     if (typeof description !== 'string' || !description.trim()) {
         return res.status(400).send('Invalid description provided');
     }
-    if (!dateRegex.test(date)) {
-        return res.status(400).send('Date must be in format YYYY-MM or YYYY-MM-DD');
+    if (typeof date !== 'string' || !dateRegex.test(date)) {
+        return res.status(400).send('Date must be in format YYYY-MM-DD HH:mm:ss');
     }
-
-    const updatedMovement = {
-        date,
-        description,
-        amount,
-        category: new ObjectId(category)
-    };
 
     try {
         await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
-            { $set: updatedMovement },
+            { $set: { date, description, amount, category: new ObjectId(category) } },
             { returnDocument: 'after' }
         );
 
-        res.status(200).send(`Movement with updated`);
+        res.status(200).send('Movement updated successfully');
     } catch (error) {
         console.error("Error updating movement:", error);
         res.status(500).send("Error updating movement: " + error.message);
