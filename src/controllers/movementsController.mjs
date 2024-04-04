@@ -133,17 +133,18 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
-    try {
-        const newMovement = {
-            user_id: new ObjectId(userId),
-            date: new Date(date),
-            description,
-            amount,
-            category: new ObjectId(category),
-        };
+    const newMovement = {
+        user_id: new ObjectId(userId),
+        date,
+        description,
+        amount,
+        category: new ObjectId(category)
+    };
 
-        await movementsCollection.insertOne(newMovement);
-        res.status(201).send('Movement added successfully');
+    try {
+        const result = await movementsCollection.insertOne(newMovement);
+        const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
+        res.status(201).json(insertedMovement);
     } catch (error) {
         console.error("Error adding new movement:", error);
         res.status(500).send("Error adding new movement: " + error.message);
