@@ -6,7 +6,7 @@ Profit-Lost.com es una aplicación web avanzada desarrollada en React con Typesc
 <h2>Características Principales</h2>
 <ul>
   <li>Recuperación de datos de la BDD</li>
-  <li>Addición de datos de la BDD</li>
+  <li>Addición de datos a la BDD</li>
   <li>Gestión de usuarios</li>
 </ul>
 
