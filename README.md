@@ -1,4 +1,4 @@
-<h1>Profit-Lost.com - TFC DAW</h1>
+<h1>BACKEND Profit-Lost.com - TFG UNIVERSAE</h1>
 
 <h2>Descripción</h2>
 Profit-Lost.com es una aplicación web avanzada desarrollada en React con Typescript, centrada en la gestión y visualización de datos financieros. Esta aplicación está diseñada para proporcionar a los usuarios una herramienta intuitiva y eficaz para el seguimiento de sus finanzas personales o empresariales, con énfasis en la claridad y la facilidad de uso.
