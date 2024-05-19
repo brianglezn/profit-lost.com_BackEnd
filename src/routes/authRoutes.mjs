@@ -2,10 +2,10 @@ import { Router } from "express";
 
 import { authenticateToken } from '../middlewares/authMiddleware.mjs';
 import { register, login, requestPasswordReset, resetPassword } from "../controllers/authController.mjs";
-import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
-import { getAccountsByYear, getAllAccounts } from '../controllers/accountsController.mjs';
 import { getUserByToken } from '../controllers/usersController.mjs';
 import { getAllCategories, addCategory, editCategory, removeCategory } from '../controllers/categoryController.mjs';
+import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
+import { getAccountsByYear, getAllAccounts, createAccount, editAccount, removeAccount } from '../controllers/accountsController.mjs';
 
 const router = Router();
 
@@ -37,6 +37,9 @@ router.delete('/categories/remove/:id', authenticateToken, removeCategory);
 // Account Routes
 router.get('/accounts/all', authenticateToken, getAllAccounts);
 router.get('/accounts/:year', authenticateToken, getAccountsByYear);
+router.post('/accounts/add', authenticateToken, createAccount);
+router.put('/accounts/edit/:id', authenticateToken, editAccount);
+router.delete('/accounts/remove/:id', authenticateToken, removeAccount);
 
 // User routes
 router.get('/user/me', authenticateToken, getUserByToken);
