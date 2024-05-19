@@ -12,7 +12,7 @@ export async function getAllAccounts(req, res) {
             { $match: { "user_id": new ObjectId(userId) } },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     accountName: 1,
                     records: 1,
                     configuration: 1
@@ -36,7 +36,7 @@ export async function getAccountsByYear(req, res) {
             { $match: { "user_id": new ObjectId(userId) } },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     accountName: 1,
                     records: {
                         $filter: {
