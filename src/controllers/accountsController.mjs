@@ -75,7 +75,7 @@ export async function createAccount(req, res) {
 
         const configuration = {
             backgroundColor: "#7e2a10",
-            color: "#fff"
+            color: "#ffffff"
         };
 
         const newAccount = {
