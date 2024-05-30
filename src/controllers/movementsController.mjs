@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
-
 import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
 const movementsCollection = client.db(DB_NAME).collection("movements");
 const dateRegex = /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?)|(\d{4}-\d{2})$/;
+const dateUTC = new Date(date).toISOString();
 
 export async function getAllMovements(req, res) {
     const userId = req.user.userId;
@@ -135,7 +135,7 @@ export async function addMovement(req, res) {
 
     const newMovement = {
         user_id: new ObjectId(userId),
-        date,
+        date: dateUTC,
         description,
         amount,
         category: new ObjectId(category),
@@ -200,7 +200,7 @@ export async function editMovement(req, res) {
     try {
         await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
-            { $set: { date, description, amount, category: new ObjectId(category) } },
+            { $set: { date: dateUTC, description, amount, category: new ObjectId(category) } },
             { returnDocument: 'after' }
         );
 
