@@ -4,7 +4,6 @@ import { DB_NAME } from "../config/constants.mjs";
 
 const movementsCollection = client.db(DB_NAME).collection("movements");
 const dateRegex = /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?)|(\d{4}-\d{2})$/;
-const dateUTC = new Date(date).toISOString();
 
 export async function getAllMovements(req, res) {
     const userId = req.user.userId;
@@ -133,6 +132,8 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
+    const dateUTC = new Date(date).toISOString();
+
     const newMovement = {
         user_id: new ObjectId(userId),
         date: dateUTC,
@@ -196,6 +197,8 @@ export async function editMovement(req, res) {
     if (typeof date !== 'string' || !dateRegex.test(date)) {
         return res.status(400).send('Date must be in format YYYY-MM-DD HH:mm:ss');
     }
+
+    const dateUTC = new Date(date).toISOString();
 
     try {
         await movementsCollection.findOneAndUpdate(
