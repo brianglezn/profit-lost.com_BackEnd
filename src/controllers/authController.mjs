@@ -54,9 +54,13 @@ export async function register(req, res) {
 
 export async function login(req, res) {
     try {
-        const { email, password } = req.body;
+        const { identifier, password } = req.body;
         const usersCollection = client.db(DB_NAME).collection("users");
-        const user = await usersCollection.findOne({ email });
+
+        // Buscar usuario por correo electrónico o nombre de usuario
+        const user = await usersCollection.findOne({
+            $or: [{ email: identifier }, { username: identifier }]
+        });
 
         if (user && (await bcrypt.compare(password, user.password))) {
             const token = jwt.sign({ userId: user._id }, JWT_KEY, {
@@ -64,7 +68,7 @@ export async function login(req, res) {
             });
             res.json({ token });
         } else {
-            res.status(401).send("Invalid email or password");
+            res.status(401).send("Invalid email/username or password");
         }
     } catch (e) {
         console.error(e);
