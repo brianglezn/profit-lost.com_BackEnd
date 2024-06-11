@@ -57,14 +57,13 @@ export async function login(req, res) {
         const { identifier, password } = req.body;
         const usersCollection = client.db(DB_NAME).collection("users");
 
-        // Buscar usuario por correo electrónico o nombre de usuario
         const user = await usersCollection.findOne({
             $or: [{ email: identifier }, { username: identifier }]
         });
 
         if (user && (await bcrypt.compare(password, user.password))) {
             const token = jwt.sign({ userId: user._id }, JWT_KEY, {
-                expiresIn: "1h",
+                expiresIn: "30d",
             });
             res.json({ token });
         } else {
