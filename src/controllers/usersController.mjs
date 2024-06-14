@@ -5,20 +5,25 @@ import { DB_NAME } from "../config/constants.mjs";
 const usersCollection = client.db(DB_NAME).collection("users");
 
 export async function getUserByToken(req, res) {
-    const userId = req.user.userId;
-
     try {
-        const user = await usersCollection.findOne(
-            { "_id": new ObjectId(userId) },
-            { projection: { _id: 0, password: 0 } }
-        );
+        const userId = req.user.userId;
+        const usersCollection = client.db(DB_NAME).collection("users");
+        const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+
         if (user) {
-            res.json(user);
+            res.json({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                name: user.name,
+                surname: user.surname,
+                // Añade cualquier otro campo necesario
+            });
         } else {
             res.status(404).send("User not found");
         }
-    } catch (error) {
-        console.error("Error retrieving user by token:", error);
-        res.status(500).send("Error retrieving user data");
+    } catch (e) {
+        console.error(e);
+        res.status(500).send("Error fetching user");
     }
 }
