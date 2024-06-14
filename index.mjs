@@ -6,6 +6,7 @@ import { join } from 'path';
 import { fileURLToPath } from "url";
 import authRoutes from "./src/routes/PLRoutes.mjs";
 import path from 'path';
+import { readdir, existsSync, mkdirSync } from 'fs';
 import "dotenv/config";
 
 const app = express();
@@ -16,13 +17,26 @@ const PORT = process.env.PORT;
 app.use(authRoutes);
 
 app.get('/api/check-backups', async (req, res) => {
-  try {
-    const backupPath = join(__dirname, 'src/db_backups');
-    const files = await readdir(backupPath);
-    res.json({ backups: files });
-  } catch (error) {
-    res.status(500).send('Error reading backup directory');
-  }
+    try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const backupPath = join(__dirname, 'src/db_backups');
+        
+        if (!existsSync(backupPath)) {
+            mkdirSync(backupPath);
+        }
+
+        const files = await new Promise((resolve, reject) => {
+            readdir(backupPath, (err, files) => {
+                if (err) reject(err);
+                resolve(files);
+            });
+        });
+
+        res.json({ backups: files });
+    } catch (error) {
+        res.status(500).json({ error: 'Error reading backup directory', details: error.message });
+    }
 });
 
 app.listen(PORT, () => {
@@ -33,7 +47,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const backupScriptPath = join(__dirname, 'src/config/db_bckp.mjs');
 
-cron.schedule('* * * * *', () => {
+cron.schedule('0 2 * * *', () => {
   console.log('Executing backup job...');
   exec(`node ${backupScriptPath}`, (error, stdout, stderr) => {
     if (error) {
@@ -47,4 +61,3 @@ cron.schedule('* * * * *', () => {
     console.log(`Backup completed successfully: ${stdout}`);
   });
 });
-
