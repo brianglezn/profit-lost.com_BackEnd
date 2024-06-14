@@ -57,25 +57,6 @@ app.get('/api/download-backup/:filename', authenticateToken, authorizeBackupAcce
         res.status(500).json({ error: 'Error downloading file', details: error.message });
     }
 });
-router.delete('/api/remove-backup/:filename', authenticateToken, authorizeBackupAccess, (req, res) => {
-  try {
-    const { filename } = req.params;
-    const file = join(backupPath, filename);
-
-    if (!existsSync(file)) {
-      return res.status(404).json({ error: 'File not found' });
-    }
-
-    unlink(file, (err) => {
-      if (err) {
-        return res.status(500).json({ error: 'Error deleting file', details: err.message });
-      }
-      res.json({ success: 'File deleted successfully' });
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Error deleting file', details: error.message });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
@@ -85,7 +66,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const backupScriptPath = join(__dirname, 'src/config/db_bckp.mjs');
 
-cron.schedule('0 2 * * *', () => {
+cron.schedule('* * * * *', () => {
   console.log('Executing backup job...');
   exec(`node ${backupScriptPath}`, (error, stdout, stderr) => {
     if (error) {
