@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import authRoutes from "./src/routes/PLRoutes.mjs";
 import path from 'path';
 import { readdir, existsSync, mkdirSync, createReadStream } from 'fs';
-import { authenticateToken, authorizeBackupAccess } from "./src/middlewares/authMiddleware.mjs"; // Import the middleware
+import { authenticateToken, authorizeBackupAccess } from "./src/middlewares/authMiddleware.mjs";
 import "dotenv/config";
 
 const app = express();
@@ -17,7 +17,7 @@ const PORT = process.env.PORT;
 
 app.use(authRoutes);
 
-app.get('/api/check-backups', authenticateToken, authorizeBackupAccess, async (req, res) => { // Use the middleware here
+app.get('/api/check-backups', authenticateToken, authorizeBackupAccess, async (req, res) => {
     try {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
@@ -39,8 +39,7 @@ app.get('/api/check-backups', authenticateToken, authorizeBackupAccess, async (r
         res.status(500).json({ error: 'Error reading backup directory', details: error.message });
     }
 });
-
-app.get('/api/download-backup/:filename', authenticateToken, authorizeBackupAccess, (req, res) => { // Use the middleware here
+app.get('/api/download-backup/:filename', authenticateToken, authorizeBackupAccess, (req, res) => {
     try {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = path.dirname(__filename);
@@ -57,6 +56,25 @@ app.get('/api/download-backup/:filename', authenticateToken, authorizeBackupAcce
     } catch (error) {
         res.status(500).json({ error: 'Error downloading file', details: error.message });
     }
+});
+router.delete('/api/remove-backup/:filename', authenticateToken, authorizeBackupAccess, (req, res) => {
+  try {
+    const { filename } = req.params;
+    const file = join(backupPath, filename);
+
+    if (!existsSync(file)) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    unlink(file, (err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error deleting file', details: err.message });
+      }
+      res.json({ success: 'File deleted successfully' });
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting file', details: error.message });
+  }
 });
 
 app.listen(PORT, () => {
