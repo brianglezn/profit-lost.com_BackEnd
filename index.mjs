@@ -66,7 +66,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const backupScriptPath = join(__dirname, 'src/config/db_bckp.mjs');
 
-cron.schedule('* * * * *', () => {
+cron.schedule('0 2 * * *', () => {
   console.log('Executing backup job...');
   exec(`node ${backupScriptPath}`, (error, stdout, stderr) => {
     if (error) {
