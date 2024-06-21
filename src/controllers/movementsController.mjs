@@ -213,3 +213,4 @@ export async function editMovement(req, res) {
         res.status(500).send("Error updating movement: " + error.message);
     }
 }
+
