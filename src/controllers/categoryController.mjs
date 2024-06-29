@@ -62,9 +62,9 @@ export async function editCategory(req, res) {
         return res.status(400).send("Invalid category ID format");
     }
 
-    if (!name) {
-        console.log("Name is required");
-        return res.status(400).send("Name is required");
+    if (!name || !color) {
+        console.log("Name and color are required");
+        return res.status(400).send("Name and color are required");
     }
 
     try {
@@ -75,7 +75,7 @@ export async function editCategory(req, res) {
 
         const updateResult = await categoriesCollection.updateOne(
             { _id: categoryId, user_id: userObjectId },
-            { $set: { name, color } }
+            { $set: { name: name, color: color } }
         );
 
         if (updateResult.matchedCount === 0) {
