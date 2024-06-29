@@ -38,7 +38,7 @@ export async function addCategory(req, res) {
 
         const newCategory = {
             name,
-            color: color || "#c84f03",
+            color: color.startsWith('#') ? color : `#${color}`,
             user_id: new ObjectId(userId),
         };
 
@@ -75,7 +75,7 @@ export async function editCategory(req, res) {
 
         const updateResult = await categoriesCollection.updateOne(
             { _id: categoryId, user_id: userObjectId },
-            { $set: { name: name, color: color } }
+            { $set: { name: name, color: color.startsWith('#') ? color : `#${color}` } }
         );
 
         if (updateResult.matchedCount === 0) {
