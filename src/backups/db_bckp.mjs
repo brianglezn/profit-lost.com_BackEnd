@@ -1,9 +1,8 @@
 import { MongoClient } from 'mongodb';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
 import { config } from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
+import uploadToDrive from './uploadToDrive.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,16 +29,16 @@ async function backupDatabase() {
             backupData[collectionName] = collectionData;
         }
 
-        const backupPath = join(__dirname, '../db_backups');
-        if (!existsSync(backupPath)) {
-            mkdirSync(backupPath);
-        }
-
         const currentDate = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-        const backupFile = join(backupPath, `${DB_NAME}-backup-${currentDate}.json`);
-        writeFileSync(backupFile, JSON.stringify(backupData, null, 2));
+        const backupFileName = `${DB_NAME}-backup-${currentDate}.json`;
+        const backupFileContent = JSON.stringify(backupData, null, 2);
 
-        console.log(`Backup completed successfully: ${backupFile}`);
+        console.log(`Backup completed successfully. Uploading to Google Drive...`);
+
+        const folderId = '1zgljhSKRRp3u9aJ2Js5K3PHx6OUUsxr7';
+
+        await uploadToDrive(backupFileName, backupFileContent, folderId);
+
     } catch (error) {
         console.error('Error creating backup:', error);
     } finally {

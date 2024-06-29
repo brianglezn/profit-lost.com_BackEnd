@@ -43,3 +43,6 @@ yarn-error.log*
 *.pid.lock
 *.seed
 *.pid.lock
+
+# Archivos de backups
+src/backups/credentials.json
