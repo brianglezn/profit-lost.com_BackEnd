@@ -11,7 +11,6 @@ export async function getAllCategories(req, res) {
 
     try {
         const categories = await categoriesCollection.find({ "user_id": new ObjectId(userId) }).toArray();
-
         res.json(categories);
     } catch (error) {
         console.error("Error retrieving categories:", error);
@@ -20,7 +19,7 @@ export async function getAllCategories(req, res) {
 }
 
 export async function addCategory(req, res) {
-    const { name } = req.body;
+    const { name, color } = req.body;
     const userId = req.user.userId;
 
     if (!name) {
@@ -39,6 +38,7 @@ export async function addCategory(req, res) {
 
         const newCategory = {
             name,
+            color: color || "#c84f03",
             user_id: new ObjectId(userId),
         };
 
@@ -54,7 +54,7 @@ export async function addCategory(req, res) {
 
 export async function editCategory(req, res) {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, color } = req.body;
     const userId = req.user.userId;
 
     if (!ObjectId.isValid(id)) {
@@ -71,11 +71,11 @@ export async function editCategory(req, res) {
         const categoryId = new ObjectId(id);
         const userObjectId = new ObjectId(userId);
 
-        console.log("Attempting to edit category:", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name });
+        console.log("Attempting to edit category:", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name, color });
 
         const updateResult = await categoriesCollection.updateOne(
             { _id: categoryId, user_id: userObjectId },
-            { $set: { name: name } }
+            { $set: { name, color } }
         );
 
         if (updateResult.matchedCount === 0) {
@@ -88,7 +88,7 @@ export async function editCategory(req, res) {
             return res.status(200).send("Category not updated, no changes made.");
         }
 
-        console.log("Category updated successfully", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name });
+        console.log("Category updated successfully", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name, color });
         res.status(200).send("Category updated successfully");
     } catch (error) {
         console.error("Error updating category:", error);
