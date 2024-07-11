@@ -47,4 +47,3 @@ yarn-error.log*
 # Archivos de backups
 src/backups/credentials.json
 src/backups/token.json
-src/backups/token.json
