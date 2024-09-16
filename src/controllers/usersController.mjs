@@ -19,6 +19,7 @@ export async function getUserByToken(req, res) {
                 name: user.name,
                 surname: user.surname,
                 profileImage: user.profileImage,
+                language: user.language,
             });
         } else {
             res.status(404).send("User not found");
