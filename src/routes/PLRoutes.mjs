@@ -6,6 +6,7 @@ import { getUserByToken, updateUserProfile } from '../controllers/usersControlle
 import { getAllCategories, addCategory, editCategory, removeCategory } from '../controllers/categoryController.mjs';
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts, createAccount, editAccount, removeAccount } from '../controllers/accountsController.mjs';
+import { upload } from '../config/multer.mjs';
 
 const router = Router();
 
