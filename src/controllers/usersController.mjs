@@ -1,5 +1,7 @@
 import { ObjectId } from "mongodb";
 import nodemailer from "nodemailer";
+import bcrypt from "bcrypt";
+
 import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 import { cloudinary } from "../config/cloudinary.mjs";
