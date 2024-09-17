@@ -35,9 +35,19 @@ export async function updateUserProfile(req, res) {
         const userId = req.user.userId;
         const { name, surname, language } = req.body;
 
+        const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
         let profileImageUrl = null;
+        let newPublicId = null;
 
         if (req.file) {
+            if (user.profileImagePublicId) {
+                await cloudinary.uploader.destroy(user.profileImagePublicId);
+            }
+
             const result = await new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
                     {
@@ -48,12 +58,13 @@ export async function updateUserProfile(req, res) {
                         if (error) {
                             return reject(error);
                         }
-                        resolve(result.secure_url);
+                        resolve(result);
                     }
                 ).end(req.file.buffer);
             });
 
-            profileImageUrl = result;
+            profileImageUrl = result.secure_url;
+            newPublicId = result.public_id;
         }
 
         const updateData = {
@@ -62,8 +73,9 @@ export async function updateUserProfile(req, res) {
             language,
         };
 
-        if (profileImageUrl) {
+        if (profileImageUrl && newPublicId) {
             updateData.profileImage = profileImageUrl;
+            updateData.profileImagePublicId = newPublicId;
         }
 
         const updatedUser = await usersCollection.updateOne(
