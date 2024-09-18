@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { authenticateToken } from '../middlewares/authMiddleware.mjs';
 import { register, login, requestPasswordReset, resetPassword } from "../controllers/authController.mjs";
-import { getUserByToken, updateUserProfile, changePassword, deleteProfileImage } from '../controllers/usersController.mjs';
+import { getUserByToken, updateUserProfile, changePassword, deleteProfileImage, deleteUserAccount } from '../controllers/usersController.mjs';
 import { getAllCategories, addCategory, editCategory, removeCategory } from '../controllers/categoryController.mjs';
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts, createAccount, editAccount, removeAccount } from '../controllers/accountsController.mjs';
@@ -47,5 +47,7 @@ router.get('/user/me', authenticateToken, getUserByToken);
 router.post('/user/updateProfile', authenticateToken, upload.single('profileImage'), updateUserProfile);
 router.post('/user/changePassword', authenticateToken, changePassword);
 router.post("/user/deleteProfileImage", authenticateToken, deleteProfileImage);
+router.delete("/user/deleteAccount", authenticateToken, deleteUserAccount);
+
 
 export default router;

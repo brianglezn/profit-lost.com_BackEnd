@@ -195,3 +195,20 @@ export async function deleteProfileImage(req, res) {
     res.status(500).json({ message: "Error deleting profile image" });
   }
 }
+
+export async function deleteUserAccount(req, res) {
+  try {
+    const userId = req.user.userId;
+
+    const result = await usersCollection.deleteOne({ _id: new ObjectId(userId) });
+
+    if (result.deletedCount === 1) {
+      res.json({ message: "User account deleted successfully" });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting user account:", error);
+    res.status(500).json({ message: "Error deleting user account" });
+  }
+}
