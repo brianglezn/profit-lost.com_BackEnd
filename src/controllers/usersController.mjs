@@ -100,73 +100,98 @@ export async function updateUserProfile(req, res) {
 }
 
 export async function changePassword(req, res) {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        const userId = req.user.userId;
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.userId;
 
-        const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,}$/;
 
-        if (!passwordRegex.test(newPassword)) {
-            return res.status(400).json({
-                message:
-                    "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
-            });
-        }
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      });
+    }
 
-        const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!passwordMatch) {
-            return res.status(400).json({ message: "Current password is incorrect" });
-        }
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!passwordMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
 
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-        await usersCollection.updateOne(
-            { _id: new ObjectId(userId) },
-            { $set: { password: hashedNewPassword } }
-        );
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { password: hashedNewPassword } }
+    );
 
-        let transporter = nodemailer.createTransport({
-            host: "smtp.hostinger.com",
-            port: 465,
-            secure: true,
-            auth: {
-                user: "no-reply@profit-lost.com",
-                pass: process.env.EMAIL_PASSWORD,
-            },
-        });
+    let transporter = nodemailer.createTransport({
+      host: "smtp.hostinger.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "no-reply@profit-lost.com",
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
 
-        let mailOptions = {
-            from: '"Profit-Lost" <no-reply@profit-lost.com>',
-            to: user.email,
-            subject: "Password Changed Successfully",
-            html: `
+    let mailOptions = {
+      from: '"Profit-Lost" <no-reply@profit-lost.com>',
+      to: user.email,
+      subject: "Password Changed Successfully",
+      html: `
                 <div style="font-family: 'Arial', sans-serif; color: #212529;">
                     <h2>Password Changed</h2>
                     <p>Your password has been successfully changed.</p>
                     <p>If you did not make this change, please contact support immediately.</p>
                 </div>
             `,
-        };
+    };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error('Error sending email:', error);
-            } else {
-                console.log('Confirmation email sent:', info.messageId);
-            }
-        });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Confirmation email sent:', info.messageId);
+      }
+    });
 
-        res.json({ message: "Password changed successfully" });
-    } catch (error) {
-        console.error("Error changing password:", error);
-        res.status(500).json({ message: "Error changing password" });
-    }
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ message: "Error changing password" });
+  }
 }
 
+export async function deleteProfileImage(req, res) {
+  try {
+    const userId = req.user.userId;
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.profileImagePublicId) {
+      await cloudinary.uploader.destroy(user.profileImagePublicId);
+    }
+
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $unset: { profileImage: "", profileImagePublicId: "" } }
+    );
+
+    res.json({ message: "Profile image deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting profile image:", error);
+    res.status(500).json({ message: "Error deleting profile image" });
+  }
+}
