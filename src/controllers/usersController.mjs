@@ -212,3 +212,24 @@ export async function deleteUserAccount(req, res) {
     res.status(500).json({ message: "Error deleting user account" });
   }
 }
+
+export async function updateAccountsOrder(req, res) {
+  try {
+    const userId = req.user.userId;
+    const { accountsOrder } = req.body;
+
+    if (!Array.isArray(accountsOrder)) {
+      return res.status(400).send("Invalid accounts order");
+    }
+
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { accountsOrder } }
+    );
+
+    res.json({ message: "Accounts order updated successfully" });
+  } catch (error) {
+    console.error("Error updating accounts order:", error);
+    res.status(500).send("Error updating accounts order");
+  }
+}
