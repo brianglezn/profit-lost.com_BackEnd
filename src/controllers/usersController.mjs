@@ -23,6 +23,7 @@ export async function getUserByToken(req, res) {
         surname: user.surname,
         profileImage: user.profileImage,
         language: user.language,
+        accountsOrder: user.accountsOrder,
       });
     } else {
       res.status(404).send("User not found");
