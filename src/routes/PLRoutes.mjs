@@ -6,6 +6,7 @@ import { getUserByToken, updateUserProfile, changePassword, deleteProfileImage, 
 import { getAllCategories, addCategory, editCategory, removeCategory } from '../controllers/categoryController.mjs';
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
 import { getAccountsByYear, getAllAccounts, createAccount, editAccount, removeAccount } from '../controllers/accountsController.mjs';
+import { getAllNotes, createNote, editNote, deleteNote } from '../controllers/notesController.mjs';
 import { upload } from '../config/multer.mjs';
 
 const router = Router();
@@ -49,5 +50,11 @@ router.post('/user/changePassword', authenticateToken, changePassword);
 router.post("/user/deleteProfileImage", authenticateToken, deleteProfileImage);
 router.delete("/user/deleteAccount", authenticateToken, deleteUserAccount);
 router.post("/user/updateAccountsOrder", authenticateToken, updateAccountsOrder);
+
+// Notes routes
+router.get('/notes', authenticateToken, getAllNotes);
+router.post('/notes', authenticateToken, createNote);
+router.put('/notes/:id', authenticateToken, editNote);
+router.delete('/notes/:id', authenticateToken, deleteNote);
 
 export default router;
