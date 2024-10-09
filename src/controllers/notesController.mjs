@@ -1,53 +1,99 @@
-// notesController.mjs
-import { v4 as uuidv4 } from 'uuid';
+import { ObjectId } from 'mongodb';
+import { client } from "../config/database.mjs";
+import { DB_NAME } from "../config/constants.mjs";
 
-let notes = []; // This will store the notes in-memory for now
+const notesCollection = client.db(DB_NAME).collection("notes");
 
-// Get all notes
-export const getAllNotes = (req, res) => {
-    res.status(200).json(notes);
-};
+export async function getAllNotes(req, res) {
+    const userId = req.user.userId;
 
-// Create a new note
-export const createNote = (req, res) => {
+    try {
+        const notes = await notesCollection.find({ "user_id": new ObjectId(userId) }).toArray();
+        res.json(notes);
+    } catch (error) {
+        console.error("Error retrieving notes:", error);
+        res.status(500).send("Error retrieving notes");
+    }
+}
+
+export async function createNote(req, res) {
     const { title, content } = req.body;
-    const newNote = {
-        id: uuidv4(),
-        title: title || 'Untitled Note',
-        content: content || ''
-    };
-    notes.push(newNote);
-    res.status(201).json(newNote);
-};
+    const userId = req.user.userId;
 
-// Edit a note
-export const editNote = (req, res) => {
+    try {
+        const newNote = {
+            title: title || 'Untitled Note',
+            content: content || '',
+            user_id: new ObjectId(userId),
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
+
+        const result = await notesCollection.insertOne(newNote);
+        const insertedNote = await notesCollection.findOne({ _id: result.insertedId });
+        res.status(201).json(insertedNote);
+    } catch (error) {
+        console.error("Error creating note:", error);
+        res.status(500).send("Error creating note");
+    }
+}
+
+export async function editNote(req, res) {
     const { id } = req.params;
     const { title, content } = req.body;
+    const userId = req.user.userId;
 
-    const noteIndex = notes.findIndex(note => note.id === id);
-    if (noteIndex === -1) {
-        return res.status(404).json({ message: 'Note not found' });
+    if (!ObjectId.isValid(id)) {
+        console.log("Invalid note ID format:", id);
+        return res.status(400).send("Invalid note ID format");
     }
 
-    notes[noteIndex] = {
-        ...notes[noteIndex],
-        title: title || notes[noteIndex].title,
-        content: content || notes[noteIndex].content
-    };
+    try {
+        const noteId = new ObjectId(id);
+        const userObjectId = new ObjectId(userId);
 
-    res.status(200).json(notes[noteIndex]);
-};
+        const updateResult = await notesCollection.updateOne(
+            { _id: noteId, user_id: userObjectId },
+            {
+                $set: {
+                    title: title || 'Untitled Note',
+                    content: content || '',
+                    updated_at: new Date(),
+                }
+            }
+        );
 
-// Delete a note
-export const deleteNote = (req, res) => {
+        if (updateResult.matchedCount === 0) {
+            console.log("Note not found", { noteId: noteId.toString(), userObjectId: userObjectId.toString() });
+            return res.status(404).send("Note not found");
+        }
+
+        const updatedNote = await notesCollection.findOne({ _id: noteId });
+        res.status(200).json(updatedNote);
+    } catch (error) {
+        console.error("Error updating note:", error);
+        res.status(500).send("Error updating note");
+    }
+}
+
+export async function deleteNote(req, res) {
     const { id } = req.params;
-    const noteIndex = notes.findIndex(note => note.id === id);
+    const userId = req.user.userId;
 
-    if (noteIndex === -1) {
-        return res.status(404).json({ message: 'Note not found' });
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).send("Invalid note ID format");
     }
 
-    const deletedNote = notes.splice(noteIndex, 1);
-    res.status(200).json({ message: 'Note deleted successfully', note: deletedNote[0] });
-};
+    try {
+        const result = await notesCollection.deleteOne({ _id: new ObjectId(id), user_id: new ObjectId(userId) });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).send("Note not found or does not belong to the user");
+        }
+
+        res.status(200).send(`Note with id ${id} deleted successfully`);
+    } catch (error) {
+        console.error("Error deleting note:", error);
+        res.status(500).send("Error deleting note");
+    }
+}
