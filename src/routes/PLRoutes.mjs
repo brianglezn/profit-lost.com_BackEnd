@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { authenticateToken } from '../middlewares/authMiddleware.mjs';
-import { register, login, requestPasswordReset, resetPassword, authStatus, logout } from "../controllers/authController.mjs";
+import { register, login, requestPasswordReset, resetPassword, logout } from "../controllers/authController.mjs";
 import { getUserByToken, updateUserProfile, changePassword, deleteProfileImage, deleteUserAccount, updateAccountsOrder } from '../controllers/usersController.mjs';
 import { getAllCategories, addCategory, editCategory, removeCategory } from '../controllers/categoryController.mjs';
 import { getAllMovements, getMovementsByYear, getMovementsByYearAndMonth, addMovement, removeMovement, editMovement, } from '../controllers/movementsController.mjs';
@@ -21,7 +21,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/requestPasswordReset", requestPasswordReset);
 router.post("/resetPassword", resetPassword);
-router.get('/auth-status', authStatus);
 router.post('/logout', logout);
 
 // Movement routes
