@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-
 import { client } from "../config/database.mjs";
 import { DB_NAME, JWT_KEY } from "../config/constants.mjs";
 
+// Helper functions to check if username or email already exist
 async function checkUsernameExists(username) {
   const usersCollection = client.db(DB_NAME).collection("users");
   const existingUser = await usersCollection.findOne({ username });
@@ -17,6 +17,7 @@ async function checkEmailExists(email) {
   return !!existingUser;
 }
 
+// User registration
 export async function register(req, res) {
   try {
     const { username, name, surname, email, password } = req.body;
@@ -46,7 +47,6 @@ export async function register(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const usersCollection = client.db(DB_NAME).collection("users");
     const result = await usersCollection.insertOne({
       username,
@@ -66,6 +66,7 @@ export async function register(req, res) {
   }
 }
 
+// User login
 export async function login(req, res) {
   try {
     const { identifier, password } = req.body;
@@ -79,7 +80,15 @@ export async function login(req, res) {
       const token = jwt.sign({ userId: user._id }, JWT_KEY, {
         expiresIn: "30d",
       });
-      res.json({ token });
+
+      res.cookie("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
+
+      res.status(200).json({ success: true, message: "Login successful" });
     } else {
       res.status(401).send("Invalid email/username or password");
     }
@@ -89,6 +98,7 @@ export async function login(req, res) {
   }
 }
 
+// Request password reset with email token
 export async function requestPasswordReset(req, res) {
   const { email } = req.body;
   try {
@@ -158,6 +168,7 @@ export async function requestPasswordReset(req, res) {
   }
 }
 
+// Reset password
 export async function resetPassword(req, res) {
   const { token, newPassword } = req.body;
   try {
