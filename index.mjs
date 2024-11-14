@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cron from "node-cron";
+import cookieParser from 'cookie-parser';
 import { exec } from "child_process";
 import { join } from 'path';
 import { fileURLToPath } from "url";
@@ -11,6 +12,7 @@ import { authenticateToken, authorizeBackupAccess } from "./src/middlewares/auth
 import "dotenv/config";
 
 const app = express();
+app.use(cookieParser());
 app.use(
   cors({
     origin: ['http://localhost:5173', 'https://profit-lost.com'],
