@@ -2,10 +2,9 @@ import jwt from 'jsonwebtoken';
 import { JWT_KEY } from '../config/constants.mjs';
 
 export function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = req.cookies?.authToken;
 
-    if (token == null) {
+    if (!token) {
         return res.sendStatus(401);
     }
 
