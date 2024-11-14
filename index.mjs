@@ -11,51 +11,56 @@ import { authenticateToken, authorizeBackupAccess } from "./src/middlewares/auth
 import "dotenv/config";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'https://profit-lost.com'],
+    credentials: true,
+  })
+);
 app.use(express.json());
 const PORT = process.env.PORT;
 
 app.use(authRoutes);
 
 app.get('/api/check-backups', authenticateToken, authorizeBackupAccess, async (req, res) => {
-    try {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const backupPath = join(__dirname, 'src/db_backups');
-        
-        if (!existsSync(backupPath)) {
-            mkdirSync(backupPath);
-        }
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const backupPath = join(__dirname, 'src/db_backups');
 
-        const files = await new Promise((resolve, reject) => {
-            readdir(backupPath, (err, files) => {
-                if (err) reject(err);
-                resolve(files);
-            });
-        });
-
-        res.json({ backups: files });
-    } catch (error) {
-        res.status(500).json({ error: 'Error reading backup directory', details: error.message });
+    if (!existsSync(backupPath)) {
+      mkdirSync(backupPath);
     }
+
+    const files = await new Promise((resolve, reject) => {
+      readdir(backupPath, (err, files) => {
+        if (err) reject(err);
+        resolve(files);
+      });
+    });
+
+    res.json({ backups: files });
+  } catch (error) {
+    res.status(500).json({ error: 'Error reading backup directory', details: error.message });
+  }
 });
 app.get('/api/download-backup/:filename', authenticateToken, authorizeBackupAccess, (req, res) => {
-    try {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const backupPath = join(__dirname, 'src/db_backups');
-        const { filename } = req.params;
-        const file = join(backupPath, filename);
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const backupPath = join(__dirname, 'src/db_backups');
+    const { filename } = req.params;
+    const file = join(backupPath, filename);
 
-        if (!existsSync(file)) {
-            return res.status(404).json({ error: 'File not found' });
-        }
-
-        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-        createReadStream(file).pipe(res);
-    } catch (error) {
-        res.status(500).json({ error: 'Error downloading file', details: error.message });
+    if (!existsSync(file)) {
+      return res.status(404).json({ error: 'File not found' });
     }
+
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    createReadStream(file).pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: 'Error downloading file', details: error.message });
+  }
 });
 
 app.listen(PORT, () => {
