@@ -5,8 +5,8 @@ import { URLSearchParams } from 'url';
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
-const TOKEN_PATH = 'D:\\DEV\\profit-lost.com_BackEnd\\src\\backups\\token.json';
-const CREDENTIALS_PATH = 'D:\\DEV\\profit-lost.com_BackEnd\\src\\backups\\credentials.json';
+const TOKEN_PATH = './token.json';
+const CREDENTIALS_PATH = './credentials.json';
 
 // Load client secrets from a local file.
 fs.readFile(CREDENTIALS_PATH, (err, content) => {
@@ -51,7 +51,7 @@ function getNewToken(oAuth2Client) {
         const decodedCode = decodeURIComponent(code);
         console.log('Authorization code:', code);
         console.log('Decoded authorization code:', decodedCode);
-        
+
         oAuth2Client.getToken(decodedCode, (err, token) => {
             if (err) {
                 console.error('Error retrieving access token:', err);
