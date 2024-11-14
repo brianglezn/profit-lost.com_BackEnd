@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { JWT_KEY } from '../config/constants.mjs';
 
 export function authenticateToken(req, res, next) {
+    console.log('Cookies:', req.cookies);
     const token = req.cookies?.authToken;
 
     if (!token) {
@@ -16,12 +17,4 @@ export function authenticateToken(req, res, next) {
         req.user = user;
         next();
     });
-}
-
-export function authorizeBackupAccess(req, res, next) {
-    const authorizedUserId = "65df4dfae27f115e23b1a1c2";
-    if (req.user.userId !== authorizedUserId) {
-        return res.sendStatus(403);
-    }
-    next();
 }
