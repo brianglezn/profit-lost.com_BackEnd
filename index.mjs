@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from "./src/routes/PLRoutes.mjs";
 import "dotenv/config";
 
-import { authStatus } from "../controllers/authController.mjs";
+import { authStatus } from "./src/controllers/authController.mjs";
 
 const app = express();
 app.use(cookieParser());
