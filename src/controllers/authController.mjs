@@ -117,7 +117,7 @@ export async function logout(req, res) {
 }
 
 // User authStatus
-export function authenticateToken(req, res, next) {
+export function authStatus(req, res, next) {
   console.log('Cookies en authenticateToken:', req.cookies);  // Revisa todas las cookies
   const token = req.cookies?.authToken;
 
