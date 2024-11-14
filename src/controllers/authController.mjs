@@ -98,6 +98,45 @@ export async function login(req, res) {
   }
 }
 
+// User logout
+export async function logout(req, res) {
+  try {
+    res.cookie("authToken", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      expires: new Date(0),
+    });
+
+    res.status(200).json({ success: true, message: "Logout successful" });
+  } catch (error) {
+    console.error("Error during logout:", error);
+    res.status(500).json({ success: false, message: "Server error during logout" });
+  }
+}
+
+// User authStatus
+export async function authStatus(req, res) {
+  try {
+    const token = req.cookies.authToken;
+
+    if (!token) {
+      return res.status(401).json({ authenticated: false, message: "No token provided" });
+    }
+
+    jwt.verify(token, JWT_KEY, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ authenticated: false, message: "Token is invalid or expired" });
+      }
+
+      res.status(200).json({ authenticated: true, message: "User is authenticated" });
+    });
+  } catch (error) {
+    console.error("Error checking auth status:", error);
+    res.status(500).json({ authenticated: false, message: "Server error" });
+  }
+}
+
 // Request password reset with email token
 export async function requestPasswordReset(req, res) {
   const { email } = req.body;
