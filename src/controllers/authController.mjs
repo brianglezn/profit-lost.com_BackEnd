@@ -84,9 +84,10 @@ export async function login(req, res) {
       res.cookie("authToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
+
 
       res.status(200).json({ success: true, message: "Login successful" });
     } else {
@@ -116,25 +117,22 @@ export async function logout(req, res) {
 }
 
 // User authStatus
-export async function authStatus(req, res) {
-  try {
-    const token = req.cookies?.authToken;
+export function authenticateToken(req, res, next) {
+  console.log('Cookies en authenticateToken:', req.cookies);  // Revisa todas las cookies
+  const token = req.cookies?.authToken;
 
-    if (!token) {
-      return res.status(401).json({ authenticated: false, message: "No token provided" });
+  if (!token) {
+    return res.sendStatus(401);  // Si no hay token, regresa 401
+  }
+
+  jwt.verify(token, JWT_KEY, (err, user) => {
+    if (err) {
+      return res.sendStatus(403);  // Si el token es inválido, regresa 403
     }
 
-    jwt.verify(token, JWT_KEY, (err, decoded) => {
-      if (err) {
-        return res.status(401).json({ authenticated: false, message: "Token is invalid or expired" });
-      }
-
-      res.status(200).json({ authenticated: true, message: "User is authenticated" });
-    });
-  } catch (error) {
-    console.error("Error checking auth status:", error);
-    res.status(500).json({ authenticated: false, message: "Server error" });
-  }
+    req.user = user;
+    next();
+  });
 }
 
 // Request password reset with email token
