@@ -117,23 +117,26 @@ export async function logout(req, res) {
 }
 
 // User authStatus
-export function authStatus(req, res, next) {
-  console.log('Cookies en authenticateToken:', req.cookies);  // Revisa todas las cookies
+export function authStatus(req, res) {
+  console.log('Cookies recibidas:', req.cookies);  // Verifica que las cookies llegan
   const token = req.cookies?.authToken;
 
   if (!token) {
-    return res.sendStatus(401);  // Si no hay token, regresa 401
+    console.log('No se encontró el token en las cookies.');
+    return res.sendStatus(401);  // Usuario no autenticado
   }
 
   jwt.verify(token, JWT_KEY, (err, user) => {
     if (err) {
-      return res.sendStatus(403);  // Si el token es inválido, regresa 403
+      console.log('Error verificando el token:', err.message);
+      return res.sendStatus(403);  // Token inválido o expirado
     }
 
-    req.user = user;
-    next();
+    console.log('Token verificado correctamente. Usuario:', user);
+    res.status(200).json({ authenticated: true, user });
   });
 }
+
 
 // Request password reset with email token
 export async function requestPasswordReset(req, res) {
