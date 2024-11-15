@@ -118,11 +118,9 @@ export async function logout(req, res) {
 
 // User authStatus
 export function authStatus(req, res) {
-  console.log('Cookies recibidas:', req.cookies);  // Verifica que las cookies llegan
   const token = req.cookies?.authToken;
 
   if (!token) {
-    console.log('No se encontró el token en las cookies.');
     return res.sendStatus(401);  // Usuario no autenticado
   }
 
@@ -132,7 +130,6 @@ export function authStatus(req, res) {
       return res.sendStatus(403);  // Token inválido o expirado
     }
 
-    console.log('Token verificado correctamente. Usuario:', user);
     res.status(200).json({ authenticated: true, user });
   });
 }
