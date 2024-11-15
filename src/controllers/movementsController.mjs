@@ -128,7 +128,10 @@ export async function addMovement(req, res) {
     const userId = req.user.userId;
     const { date, description, amount, category } = req.body;
 
+    console.log("Datos recibidos:", { date, description, amount, category });
+
     if (!description || typeof amount !== 'number' || !ObjectId.isValid(category)) {
+        console.error("Error en los datos proporcionados");
         return res.status(400).send('Invalid data provided');
     }
 
@@ -143,14 +146,17 @@ export async function addMovement(req, res) {
     };
 
     try {
+        console.log("Insertando movimiento:", newMovement);
         const result = await movementsCollection.insertOne(newMovement);
         const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
+        console.log("Movimiento insertado:", insertedMovement);
         res.status(201).json(insertedMovement);
     } catch (error) {
         console.error("Error adding new movement:", error);
         res.status(500).send("Error adding new movement: " + error.message);
     }
 }
+
 
 export async function removeMovement(req, res) {
     const { id } = req.params;
