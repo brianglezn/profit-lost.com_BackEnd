@@ -125,13 +125,20 @@ export async function getMovementsByYearAndMonth(req, res) {
 }
 
 export async function addMovement(req, res) {
+    console.log('addMovement endpoint hit');
+    console.log('Cookies:', req.cookies);
+    console.log('Request body:', req.body);
+
     const userId = req.user.userId;
+    if (!userId) {
+        console.error('User ID not found in request');
+        return res.status(401).send('Unauthorized');
+    }
+
     const { date, description, amount, category } = req.body;
 
-    console.log("Datos recibidos:", { date, description, amount, category });
-
     if (!description || typeof amount !== 'number' || !ObjectId.isValid(category)) {
-        console.error("Error en los datos proporcionados");
+        console.error('Invalid data provided:', { date, description, amount, category });
         return res.status(400).send('Invalid data provided');
     }
 
@@ -146,17 +153,14 @@ export async function addMovement(req, res) {
     };
 
     try {
-        console.log("Insertando movimiento:", newMovement);
         const result = await movementsCollection.insertOne(newMovement);
-        const insertedMovement = await movementsCollection.findOne({ _id: result.insertedId });
-        console.log("Movimiento insertado:", insertedMovement);
-        res.status(201).json(insertedMovement);
+        console.log('New movement added:', result);
+        res.status(201).json(result);
     } catch (error) {
-        console.error("Error adding new movement:", error);
-        res.status(500).send("Error adding new movement: " + error.message);
+        console.error('Error adding new movement:', error);
+        res.status(500).send('Error adding new movement');
     }
 }
-
 
 export async function removeMovement(req, res) {
     const { id } = req.params;

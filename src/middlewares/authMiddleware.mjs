@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { JWT_KEY } from '../config/constants.mjs';
 
 export function authenticateToken(req, res, next) {
-    console.log('Cookies:', req.cookies);
     const token = req.cookies?.authToken;
 
     if (!token) {
