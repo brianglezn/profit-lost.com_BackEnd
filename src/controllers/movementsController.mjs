@@ -125,9 +125,6 @@ export async function getMovementsByYearAndMonth(req, res) {
 }
 
 export async function addMovement(req, res) {
-    console.log('addMovement endpoint hit');
-    console.log('Cookies:', req.cookies);
-    console.log('Request body:', req.body);
 
     const userId = req.user.userId;
     if (!userId) {
@@ -154,7 +151,6 @@ export async function addMovement(req, res) {
 
     try {
         const result = await movementsCollection.insertOne(newMovement);
-        console.log('New movement added:', result);
         res.status(201).json(result);
     } catch (error) {
         console.error('Error adding new movement:', error);
@@ -166,24 +162,19 @@ export async function removeMovement(req, res) {
     const { id } = req.params;
 
     if (!ObjectId.isValid(id)) {
-        console.log(`Invalid ID format: ${id}`);
         return res.status(400).send("Invalid ID format");
     }
 
     try {
-        console.log(`Attempting to remove movement with ID: ${id}`);
-
         const result = await movementsCollection.deleteOne({
             _id: new ObjectId(id),
             user_id: new ObjectId(req.user.userId)
         });
 
         if (result.deletedCount === 0) {
-            console.log("Movement not found or does not belong to the user:", id);
             return res.status(404).send("Movement not found or does not belong to the user");
         }
 
-        console.log(`Movement with ID ${id} deleted successfully.`);
         res.status(200).send(`Movement with ID ${id} deleted`);
     } catch (error) {
         console.error("Error removing movement:", error);
