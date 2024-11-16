@@ -84,10 +84,9 @@ export async function login(req, res) {
       res.cookie("authToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        sameSite: "None",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       });
-
 
       res.status(200).json({ success: true, message: "Login successful" });
     } else {
@@ -105,7 +104,7 @@ export async function logout(req, res) {
     res.cookie("authToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: "None",
       expires: new Date(0),
     });
 
@@ -121,19 +120,21 @@ export function authStatus(req, res) {
   const token = req.cookies?.authToken;
 
   if (!token) {
-    return res.sendStatus(401);  // Usuario no autenticado
+    return res.sendStatus(401);
   }
 
   jwt.verify(token, JWT_KEY, (err, user) => {
     if (err) {
-      console.log('Error verificando el token:', err.message);
-      return res.sendStatus(403);  // Token inválido o expirado
+      console.log("Token error:", err.message);
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ message: "Session expired. Please log in again." });
+      }
+      return res.sendStatus(403);
     }
-
     res.status(200).json({ authenticated: true, user });
   });
-}
 
+}
 
 // Request password reset with email token
 export async function requestPasswordReset(req, res) {
