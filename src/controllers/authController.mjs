@@ -120,7 +120,7 @@ export function authStatus(req, res) {
   const token = req.cookies?.authToken;
 
   if (!token) {
-    return res.sendStatus(401);
+    return res.sendStatus(401); // Usuario no autenticado
   }
 
   jwt.verify(token, JWT_KEY, (err, user) => {
@@ -131,9 +131,17 @@ export function authStatus(req, res) {
       }
       return res.sendStatus(403);
     }
+
+    // Reenvía la cookie como medida adicional para iOS
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({ authenticated: true, user });
   });
-
 }
 
 // Request password reset with email token
