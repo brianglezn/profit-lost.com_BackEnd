@@ -58,12 +58,10 @@ export async function editCategory(req, res) {
     const userId = req.user.userId;
 
     if (!ObjectId.isValid(id)) {
-        console.log("Invalid category ID format:", id);
         return res.status(400).send("Invalid category ID format");
     }
 
     if (!name || !color) {
-        console.log("Name and color are required");
         return res.status(400).send("Name and color are required");
     }
 
@@ -71,24 +69,19 @@ export async function editCategory(req, res) {
         const categoryId = new ObjectId(id);
         const userObjectId = new ObjectId(userId);
 
-        console.log("Attempting to edit category:", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name, color });
-
         const updateResult = await categoriesCollection.updateOne(
             { _id: categoryId, user_id: userObjectId },
             { $set: { name: name, color: color.startsWith('#') ? color : `#${color}` } }
         );
 
         if (updateResult.matchedCount === 0) {
-            console.log("Category not found", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString() });
             return res.status(404).send("Category not found");
         }
 
         if (updateResult.modifiedCount === 0) {
-            console.log("Category not updated", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString() });
             return res.status(200).send("Category not updated, no changes made.");
         }
 
-        console.log("Category updated successfully", { categoryId: categoryId.toString(), userObjectId: userObjectId.toString(), name, color });
         res.status(200).send("Category updated successfully");
     } catch (error) {
         console.error("Error updating category:", error);

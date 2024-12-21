@@ -44,7 +44,6 @@ export async function editNote(req, res) {
     const userId = req.user.userId;
 
     if (!ObjectId.isValid(id)) {
-        console.log("Invalid note ID format:", id);
         return res.status(400).send("Invalid note ID format");
     }
 
@@ -64,7 +63,6 @@ export async function editNote(req, res) {
         );
 
         if (updateResult.matchedCount === 0) {
-            console.log("Note not found", { noteId: noteId.toString(), userObjectId: userObjectId.toString() });
             return res.status(404).send("Note not found");
         }
 

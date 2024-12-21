@@ -149,7 +149,6 @@ export async function requestPasswordReset(req, res) {
         console.error("SendMail Error:", error);
         return res.status(500).send("Error sending password reset email.");
       }
-      console.log("Password reset email sent:", info.messageId);
       res.send("Reset password link has been sent to your email.");
     });
   } catch (error) {
