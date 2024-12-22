@@ -37,7 +37,7 @@ export async function getUserByToken(req, res) {
 export async function updateUserProfile(req, res) {
   try {
     const userId = req.user.userId;
-    const { name, surname, language } = req.body;
+    const { name, surname, language, currency } = req.body;
 
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     if (!user) {
@@ -77,6 +77,7 @@ export async function updateUserProfile(req, res) {
       name,
       surname,
       language,
+      currency
     };
 
     if (profileImageUrl && newPublicId) {
