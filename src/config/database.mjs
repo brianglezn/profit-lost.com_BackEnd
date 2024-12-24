@@ -38,4 +38,4 @@ async function run() {
 }
 
 // Export the client, run function, and DB_NAME
-export { client, run, DB_NAME };
+export { client, run, DB_NAME, DB_URI };

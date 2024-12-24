@@ -9,10 +9,16 @@ import movementsRoutes from "./src/routes/movements.routes.mjs";
 import notesRoutes from "./src/routes/notes.routes.mjs";
 import userRoutes from "./src/routes/users.routes.mjs";
 
+import BackupService from "./src/services/backupService.mjs";
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT = process.env.PORT;
+
+// Inicializar servicio de backup
+const backupService = new BackupService();
+backupService.startScheduledBackups();
 
 // Health check route
 app.get('/ping', (req, res) => {
