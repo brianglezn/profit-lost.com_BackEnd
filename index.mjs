@@ -25,7 +25,7 @@ app.use('/api/accounts', accountsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/movements', movementsRoutes);
 app.use('/api/notes', notesRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
