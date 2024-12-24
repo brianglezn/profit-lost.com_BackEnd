@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
+import { encryptText, decryptText } from '../utils/encryption.mjs';
 
 const notesCollection = client.db(DB_NAME).collection("notes");
 
@@ -9,7 +10,11 @@ export async function getAllNotes(req, res) {
 
     try {
         const notes = await notesCollection.find({ "user_id": new ObjectId(userId) }).toArray();
-        res.json(notes);
+        const decryptedNotes = notes.map(note => ({
+            ...note,
+            content: note.content ? decryptText(note.content) : ''
+        }));
+        res.json(decryptedNotes);
     } catch (error) {
         console.error("Error retrieving notes:", error);
         res.status(500).send("Error retrieving notes");
@@ -23,7 +28,7 @@ export async function createNote(req, res) {
     try {
         const newNote = {
             title: title || 'Untitled Note',
-            content: content || '',
+            content: content ? encryptText(content) : '',
             user_id: new ObjectId(userId),
             created_at: new Date(),
             updated_at: new Date(),
@@ -31,6 +36,7 @@ export async function createNote(req, res) {
 
         const result = await notesCollection.insertOne(newNote);
         const insertedNote = await notesCollection.findOne({ _id: result.insertedId });
+        insertedNote.content = insertedNote.content ? decryptText(insertedNote.content) : '';
         res.status(201).json(insertedNote);
     } catch (error) {
         console.error("Error creating note:", error);
@@ -56,7 +62,7 @@ export async function editNote(req, res) {
             {
                 $set: {
                     title: title || 'Untitled Note',
-                    content: content || '',
+                    content: content ? encryptText(content) : '',
                     updated_at: new Date(),
                 }
             }
@@ -67,6 +73,7 @@ export async function editNote(req, res) {
         }
 
         const updatedNote = await notesCollection.findOne({ _id: noteId });
+        updatedNote.content = updatedNote.content ? decryptText(updatedNote.content) : '';
         res.status(200).json(updatedNote);
     } catch (error) {
         console.error("Error updating note:", error);
