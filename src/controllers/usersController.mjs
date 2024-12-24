@@ -23,6 +23,7 @@ export async function getUserByToken(req, res) {
         surname: user.surname,
         profileImage: user.profileImage,
         language: user.language,
+        currency: user.currency,
         accountsOrder: user.accountsOrder,
       });
     } else {
