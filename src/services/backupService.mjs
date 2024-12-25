@@ -155,6 +155,22 @@ class BackupService {
       return false;
     }
   }
+
+  async executeBackup() {
+    try {
+      const result = await this.createBackup();
+      return {
+        success: result,
+        message: result ? 'Backup completado con éxito' : 'Error al realizar el backup'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Error al ejecutar el backup',
+        error: error.message
+      };
+    }
+  }
 }
 
 export default BackupService; 
