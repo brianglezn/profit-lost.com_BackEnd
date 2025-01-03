@@ -22,9 +22,11 @@ export async function getUserByToken(req, res) {
         name: user.name,
         surname: user.surname,
         profileImage: user.profileImage,
+        accountsOrder: user.accountsOrder,
         language: user.language,
         currency: user.currency,
-        accountsOrder: user.accountsOrder,
+        dateFormat: user.dateFormat || 'DD/MM/YYYY',
+        timeFormat: user.timeFormat || '24h',
       });
     } else {
       res.status(404).send("User not found");
@@ -38,7 +40,7 @@ export async function getUserByToken(req, res) {
 export async function updateUserProfile(req, res) {
   try {
     const userId = req.user.userId;
-    const { name, surname, language, currency } = req.body;
+    const { name, surname, language, currency, dateFormat, timeFormat } = req.body;
 
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     if (!user) {
@@ -78,7 +80,9 @@ export async function updateUserProfile(req, res) {
       name,
       surname,
       language,
-      currency
+      currency,
+      dateFormat,
+      timeFormat
     };
 
     if (profileImageUrl && newPublicId) {
