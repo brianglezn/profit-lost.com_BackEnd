@@ -3,7 +3,7 @@ import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
 const movementsCollection = client.db(DB_NAME).collection("movements");
-const dateRegex = /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?)|(\d{4}-\d{2})$/;
+const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 
 export async function getAllMovements(req, res) {
     const userId = req.user.userId;
@@ -33,7 +33,12 @@ export async function getAllMovements(req, res) {
             }
         ]).toArray();
 
-        res.json(movements);
+        const formattedMovements = movements.map(m => ({
+            ...m,
+            date: new Date(m.date).toISOString()
+        }));
+
+        res.json(formattedMovements);
     } catch (error) {
         console.error("Error retrieving movements:", error);
         res.status(500).send(`Error adding new movement: ${error.message}`);
@@ -132,11 +137,11 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
-    const dateUTC = new Date(date).toISOString();
+    const dateISO = new Date(date).toISOString();
 
     const newMovement = {
         user_id: new ObjectId(userId),
-        date: dateUTC,
+        date: dateISO,
         description,
         amount,
         category: new ObjectId(category),
