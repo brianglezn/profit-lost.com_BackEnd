@@ -35,7 +35,7 @@ export async function getAllMovements(req, res) {
 
         const formattedMovements = movements.map(m => ({
             ...m,
-            date: new Date(m.date).toISOString()
+            date: m.date.toISOString()
         }));
 
         res.json(formattedMovements);
