@@ -137,11 +137,9 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
-    const dateUTC = new Date(date);
-
     const newMovement = {
         user_id: new ObjectId(userId),
-        date: dateUTC,
+        date: date,
         description,
         amount,
         category: new ObjectId(category),
@@ -198,12 +196,15 @@ export async function editMovement(req, res) {
         return res.status(400).send('Date must be in format YYYY-MM-DD HH:mm:ss');
     }
 
-    const dateUTC = new Date(date);
-
     try {
         await movementsCollection.findOneAndUpdate(
             { _id: new ObjectId(id), user_id: new ObjectId(req.user.userId) },
-            { $set: { date: dateUTC, description, amount, category: new ObjectId(category) } },
+            { $set: { 
+                date: date,
+                description, 
+                amount, 
+                category: new ObjectId(category) 
+            }},
             { returnDocument: 'after' }
         );
 
