@@ -137,11 +137,11 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
-    const dateISO = new Date(date).toISOString();
+    const dateUTC = new Date(date);
 
     const newMovement = {
         user_id: new ObjectId(userId),
-        date: dateISO,
+        date: dateUTC,
         description,
         amount,
         category: new ObjectId(category),
@@ -198,7 +198,7 @@ export async function editMovement(req, res) {
         return res.status(400).send('Date must be in format YYYY-MM-DD HH:mm:ss');
     }
 
-    const dateUTC = new Date(date).toISOString();
+    const dateUTC = new Date(date);
 
     try {
         await movementsCollection.findOneAndUpdate(
