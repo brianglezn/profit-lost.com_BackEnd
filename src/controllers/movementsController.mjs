@@ -33,15 +33,10 @@ export async function getAllMovements(req, res) {
             }
         ]).toArray();
 
-        const formattedMovements = movements.map(m => ({
-            ...m,
-            date: m.date.toISOString()
-        }));
-
-        res.json(formattedMovements);
+        res.json(movements);
     } catch (error) {
         console.error("Error retrieving movements:", error);
-        res.status(500).send(`Error adding new movement: ${error.message}`);
+        res.status(500).send(`Error retrieving movements: ${error.message}`);
     }
 }
 
