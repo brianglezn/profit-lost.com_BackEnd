@@ -132,6 +132,10 @@ export async function addMovement(req, res) {
         return res.status(400).send('Invalid data provided');
     }
 
+    if (!dateRegex.test(date)) {
+        return res.status(400).send('Date must be in format YYYY-MM-DDTHH:mm:ss.sssZ');
+    }
+
     const newMovement = {
         user_id: new ObjectId(userId),
         date: date,
@@ -187,8 +191,8 @@ export async function editMovement(req, res) {
     if (typeof description !== 'string' || !description.trim()) {
         return res.status(400).send('Invalid description provided');
     }
-    if (typeof date !== 'string' || !dateRegex.test(date)) {
-        return res.status(400).send('Date must be in format YYYY-MM-DD HH:mm:ss');
+    if (!dateRegex.test(date)) {
+        return res.status(400).send('Date must be in format YYYY-MM-DDTHH:mm:ss.sssZ');
     }
 
     try {
