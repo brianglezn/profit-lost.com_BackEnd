@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
-const movementsCollection = client.db(DB_NAME).collection("movements");
+const movementsCollection = client.db(DB_NAME).collection("transactions");
 const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
 
 export async function getAllMovements(req, res) {

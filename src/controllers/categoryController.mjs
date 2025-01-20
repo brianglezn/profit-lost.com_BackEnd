@@ -4,7 +4,7 @@ import { client } from "../config/database.mjs";
 import { DB_NAME } from "../config/constants.mjs";
 
 const categoriesCollection = client.db(DB_NAME).collection("categories");
-const movementsCollection = client.db(DB_NAME).collection("movements");
+const movementsCollection = client.db(DB_NAME).collection("transactions");
 
 export async function getAllCategories(req, res) {
     const userId = req.user.userId;
